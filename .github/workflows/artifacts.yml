@@ -9,7 +9,19 @@ jobs:
     steps:
       - shell: bash
         run: |
-          echo ${$(curl -Ls https://api.github.com/repos/gilbertchen/duplicacy/tags | awk -F'"' '/name.*v[0-9]/ {print $4; exit}'):1} > current_duplicacy_version.txt
+          github_repo_latest_tag()
+          {
+              local repo=$1
+              echo $(curl -Ls https://api.github.com/repos/$repo/tags | awk -F'"' '/name.*v[0-9]/ {print $4; exit}')
+          }
+          github_repo_latest_version()
+          {
+              local repo=$1
+              local latest_tag=$(github_repo_latest_tag $repo)
+              local version="${latest_tag:1}"
+              echo $version
+          }
+          echo $(github_repo_latest_version gilbertchen/duplicacy) > current_duplicacy_version.txt
       - name: Upload math result for get_current_duplicacy
         uses: actions/upload-artifact@v2
         with:
