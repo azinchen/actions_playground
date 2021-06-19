@@ -3,8 +3,34 @@ name: Share data between jobs
 on: [push]
 
 jobs:
+  get_current_duplicacy:
+    name: Get current version of duplicacy
+    runs-on: ubuntu-latest
+    steps:
+      - shell: bash
+        run: |
+          github_repo_latest_tag()
+          {
+              local repo=$1
+              echo $(curl -Ls https://api.github.com/repos/$repo/tags | awk -F'"' '/name.*v[0-9]/ {print $4; exit}')
+          }
+          github_repo_latest_version()
+          {
+              local repo=$1
+              local latest_tag=$(github_repo_latest_tag $repo)
+              local version="${latest_tag:1}"
+              echo $version
+          }
+          echo $(github_repo_latest_version gilbertchen/duplicacy) > current_duplicacy_version.txt
+      - name: Upload math result for get_current_duplicacy
+        uses: actions/upload-artifact@v2
+        with:
+          name: current_duplicacy_version
+          path: current_duplicacy_version.txt
+
   print_current_duplicacy:
     name: Print current version of duplicacy
+    needs: get_current_duplicacy
     runs-on: ubuntu-latest
     
     steps:
