@@ -8,9 +8,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download math result for get_current_duplicacy
-        uses: actions/download-artifact@v2
+        uses: dawidd6/action-download-artifact@v2
         with:
           name: current_duplicacy_version
+          workflow: artifacts.yml
       - shell: bash
         run: |
           value=`cat current_duplicacy_version.txt`
