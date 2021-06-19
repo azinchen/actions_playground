@@ -6,6 +6,7 @@ jobs:
   print_current_duplicacy:
     name: Print current version of duplicacy
     runs-on: ubuntu-latest
+    
     steps:
       - name: Download math result for get_current_duplicacy
         uses: dawidd6/action-download-artifact@v2
