@@ -39,7 +39,7 @@ jobs:
         with:
           name: current_duplicacy_version
           workflow: artifacts.yml
-          conclusion: completed
+          workflow_conclusion: completed
       - shell: bash
         run: |
           value=`cat current_duplicacy_version.txt`
