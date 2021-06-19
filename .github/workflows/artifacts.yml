@@ -3,49 +3,41 @@ name: Share data between jobs
 on: [push]
 
 jobs:
-  job_1:
-    name: Add 3 and 7
+  get_current_duplicacy:
+    name: Get current version of duplicacy
     runs-on: ubuntu-latest
     steps:
       - shell: bash
         run: |
-          expr 3 + 7 > math-homework.txt
+          github_repo_latest_tag()
+          {
+              local repo=$1
+              echo $(curl -Ls https://api.github.com/repos/$repo/tags | awk -F'"' '/name.*v[0-9]/ {print $4; exit}')
+          }
+          github_repo_latest_version()
+          {
+              local repo=$1
+              local latest_tag=$(github_repo_latest_tag $repo)
+              local version="${latest_tag:1}"
+              echo $version
+          }
+          echo $(github_repo_latest_version gilbertchen/duplicacy) > current_duplicacy_version.txt
       - name: Upload math result for job 1
         uses: actions/upload-artifact@v2
         with:
-          name: homework
-          path: math-homework.txt
+          name: current_duplicacy_version
+          path: current_duplicacy_version.txt
 
-  job_2:
-    name: Multiply by 9
-    needs: job_1
-    runs-on: windows-latest
+  print_current_duplicacy:
+    name: Print current version of duplicacy
+    needs: get_current_duplicacy
+    runs-on: ubuntu-latest
     steps:
       - name: Download math result for job 1
         uses: actions/download-artifact@v2
         with:
-          name: homework
+          name: current_duplicacy_version
       - shell: bash
         run: |
           value=`cat math-homework.txt`
-          expr $value \* 9 > math-homework.txt
-      - name: Upload math result for job 2
-        uses: actions/upload-artifact@v2
-        with:
-          name: homework
-          path: math-homework.txt
-
-  job_3:
-    name: Display results
-    needs: job_2
-    runs-on: macOS-latest
-    steps:
-      - name: Download math result for job 2
-        uses: actions/download-artifact@v2
-        with:
-          name: homework
-      - name: Print the final result
-        shell: bash
-        run: |
-          value=`cat math-homework.txt`
-          echo The result is $value
+          echo "Current duplicacy version = "$value
