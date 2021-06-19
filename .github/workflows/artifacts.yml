@@ -39,5 +39,5 @@ jobs:
           name: current_duplicacy_version
       - shell: bash
         run: |
-          value=`cat math-homework.txt`
+          value=`cat current_duplicacy_version.txt`
           echo "Current duplicacy version = "$value
