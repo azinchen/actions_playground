@@ -1,5 +1,7 @@
 FROM alpine:latest AS s6-builder
 
+ARG TARGETPLATFORM
+
 RUN echo "**** upgrade packages ****" && \
     apk --no-cache --no-progress upgrade && \
     echo "**** install packages ****" && \
@@ -25,6 +27,8 @@ RUN echo "**** upgrade packages ****" && \
     tar xfz /tmp/s6-overlay.tar.gz -C /s6/
 
 FROM alpine:latest AS duplicacy-builder
+
+ARG TARGETPLATFORM
 
 RUN echo "**** upgrade packages ****" && \
     apk --no-cache --no-progress upgrade && \
