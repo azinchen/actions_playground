@@ -11,7 +11,7 @@ RUN echo "**** upgrade packages ****" && \
     echo "**** extract s6 overlay ****" && \
     tar xfz /tmp/s6-overlay.tar.gz -C /s6/
 
-FROM arm64v8/alpine:latest
+FROM alpine:latest
 
 LABEL maintainer="Alexander Zinchenko <alexander@zinchenko.com>"
 
