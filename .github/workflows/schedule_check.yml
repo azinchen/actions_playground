@@ -1,7 +1,8 @@
 name: schedule_check_task
 
 on:
-  push:
+  schedule:
+    - cron: 0 */3 * * *
 
 env:
   CONFIG_FILE: settings.conf
