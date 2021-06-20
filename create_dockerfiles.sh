@@ -86,14 +86,23 @@ github_tag=$3
 
 if [[ -z ${s6_overlay_version} ]]; then
     s6_overlay_version=$(github_repo_latest_version just-containers/s6-overlay)
+    echo s6 overlay version is not defined, use $s6_overlay_version version
+else
+    echo s6 overlay version $s6_overlay_version defined
 fi
 
 if [[ -z ${duplicacy_version} ]]; then
     duplicacy_version=$(github_repo_latest_version gilbertchen/duplicacy)
+    echo Duplicacy version is not defined, use $duplicacy_version version
+else
+    echo Duplicacy version $duplicacy_version defined
 fi
 
-if [[ ! -z ${github_tag} ]] || [[ ${github_tag} -eq "main" ]]; then
-    github_tag=latest
+if [[ -z ${github_tag} ]]; then
+    github_tag=main
+    echo GitHub tag is not defined, use $github_tag version
+else
+    echo GitHub tag $github_tag defined
 fi
 
 for target in ${targets[*]}; do
