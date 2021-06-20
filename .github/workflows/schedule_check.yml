@@ -1,4 +1,4 @@
-name: CI_CD_Task
+name: schedule_check_task
 
 on:
   push:
