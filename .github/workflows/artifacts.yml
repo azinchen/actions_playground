@@ -3,8 +3,11 @@ name: Share data between jobs
 on: [workflow_dispatch]
 
 env:
-  DUPLICACY_VERSION: ""
-  S6_OVERLAY_VERSION: ""
+  CONFIG_FILE: settings.conf
+  OLD_DUPLICACY_VERSION: ""
+  OLD_S6_OVERLAY_VERSION: ""
+  NEW_DUPLICACY_VERSION: ""
+  NEW_S6_OVERLAY_VERSION: ""
 
 jobs:
   get_current_duplicacy:
@@ -44,7 +47,8 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ github.token }}
 
-      - shell: bash
+      - name: Read config file
+        shell: bash
         run: |
           github_repo_latest_tag()
           {
@@ -58,17 +62,37 @@ jobs:
               local version="${latest_tag:1}"
               echo $version
           }
-          echo "DUPLICACY_VERSION=$(github_repo_latest_version gilbertchen/duplicacy)" >> $GITHUB_ENV
-          echo "S6_OVERLAY_VERSION=$(github_repo_latest_version just-containers/s6-overlay)" >> $GITHUB_ENV
 
-      - shell: bash
+          source ${{ env.CONFIG_FILE }}
+
+          echo "OLD_DUPLICACY_VERSION=$DUPLICACY_VERSION" >> $GITHUB_ENV
+          echo "OLD_S6_OVERLAY_VERSION=$S6_OVERLAY_VERSION" >> $GITHUB_ENV
+
+          echo "NEW_DUPLICACY_VERSION=$(github_repo_latest_version gilbertchen/duplicacy)" >> $GITHUB_ENV
+          echo "NEW_S6_OVERLAY_VERSION=$(github_repo_latest_version just-containers/s6-overlay)" >> $GITHUB_ENV
+
+      - name: Update duplicacy version in config
+        shell: bash
         run: |
-          echo DUPLICACY_VERSION=${{ env.DUPLICACY_VERSION }} | tee settings.conf
-          echo S6_OVERLAY_VERSION=${{ env.S6_OVERLAY_VERSION }} | tee -a settings.conf
+          echo DUPLICACY_VERSION=${{ env.NEW_DUPLICACY_VERSION }} | tee ${{ env.CONFIG_FILE }}
+          echo S6_OVERLAY_VERSION=${{ env.OLD_S6_OVERLAY_VERSION }} | tee -a ${{ env.CONFIG_FILE }}
 
-      - name: Commit changes
+      - name: Commit changes, Bump duplicacy to version ${{ env.NEW_DUPLICACY_VERSION }}
         uses: EndBug/add-and-commit@v7
         with:
           default_author: github_actions
-          message: 'Update settings.conf'
-          add: 'settings.conf'
+          message: 'Bump duplicacy to version ${{ env.NEW_DUPLICACY_VERSION }}'
+          add: '${{ env.CONFIG_FILE }}'
+
+      - name: Update s6 overlay version in config
+        shell: bash
+        run: |
+          echo DUPLICACY_VERSION=${{ env.NEW_DUPLICACY_VERSION }} | tee ${{ env.CONFIG_FILE }}
+          echo S6_OVERLAY_VERSION=${{ env.NEW_S6_OVERLAY_VERSION }} | tee -a ${{ env.CONFIG_FILE }}
+
+      - name: Commit changes, Bump s6 overlay to version ${{ env.NEW_S6_OVERLAY_VERSION }}
+        uses: EndBug/add-and-commit@v7
+        with:
+          default_author: github_actions
+          message: 'Bump s6 overlay to version ${{ env.NEW_S6_OVERLAY_VERSION }}'
+          add: '${{ env.CONFIG_FILE }}'
