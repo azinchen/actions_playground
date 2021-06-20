@@ -21,7 +21,7 @@ ENV BACKUP_CRON="" \
     PRIORITY_LEVEL=10 \
     EMAIL_LOG_LINES_IN_BODY=10
 
-ADD https://github.com/gilbertchen/duplicacy/releases/latest/download/duplicacy_linux_x64_2.7.2 /usr/bin/duplicacy
+ADD https://github.com/gilbertchen/duplicacy/releases/latest/download/duplicacy_linux_x64_env.NEW_S6_OVERLAY_VERSION /usr/bin/duplicacy
 
 RUN echo "**** upgrade packages ****" && \
     apk --no-cache --no-progress upgrade && \
