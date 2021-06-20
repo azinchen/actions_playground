@@ -59,8 +59,8 @@ jobs:
               local version="${latest_tag:1}"
               echo $version
           }
-          echo DUPLICACY_VERSION=$(github_repo_latest_version gilbertchen/duplicacy) | tail settings.conf
-          echo S6_OVERLAY_VERSION=$(github_repo_latest_version just-containers/s6-overlay) | tail -a settings.conf
+          echo DUPLICACY_VERSION=$(github_repo_latest_version gilbertchen/duplicacy) | tee settings.conf
+          echo S6_OVERLAY_VERSION=$(github_repo_latest_version just-containers/s6-overlay) | tee -a settings.conf
 
       - name: Commit changes
         uses: EndBug/add-and-commit@v7
