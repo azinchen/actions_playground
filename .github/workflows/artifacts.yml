@@ -72,14 +72,14 @@ jobs:
           echo "NEW_S6_OVERLAY_VERSION=$(github_repo_latest_version just-containers/s6-overlay)" >> $GITHUB_ENV
 
       - name: Update duplicacy version in config
-        if: ${{ OLD_DUPLICACY_VERSION != NEW_DUPLICACY_VERSION }}
+        if: ${{ env.OLD_DUPLICACY_VERSION != env.NEW_DUPLICACY_VERSION }}
         shell: bash
         run: |
           echo DUPLICACY_VERSION=${{ env.NEW_DUPLICACY_VERSION }} | tee ${{ env.CONFIG_FILE }}
           echo S6_OVERLAY_VERSION=${{ env.OLD_S6_OVERLAY_VERSION }} | tee -a ${{ env.CONFIG_FILE }}
 
       - name: Commit changes, Bump duplicacy to version ${{ env.NEW_DUPLICACY_VERSION }}
-        if: ${{ OLD_DUPLICACY_VERSION != NEW_DUPLICACY_VERSION }}
+        if: ${{ env.OLD_DUPLICACY_VERSION != env.NEW_DUPLICACY_VERSION }}
         uses: EndBug/add-and-commit@v7
         with:
           default_author: github_actions
@@ -87,14 +87,14 @@ jobs:
           add: '${{ env.CONFIG_FILE }}'
 
       - name: Update s6 overlay version in config
-        if: ${{ OLD_S6_OVERLAY_VERSION != NEW_S6_OVERLAY_VERSION }}
+        if: ${{ env.LD_S6_OVERLAY_VERSION != env.NEW_S6_OVERLAY_VERSION }}
         shell: bash
         run: |
           echo DUPLICACY_VERSION=${{ env.NEW_DUPLICACY_VERSION }} | tee ${{ env.CONFIG_FILE }}
           echo S6_OVERLAY_VERSION=${{ env.NEW_S6_OVERLAY_VERSION }} | tee -a ${{ env.CONFIG_FILE }}
 
       - name: Commit changes, Bump s6 overlay to version ${{ env.NEW_S6_OVERLAY_VERSION }}
-        if: ${{ OLD_S6_OVERLAY_VERSION != NEW_S6_OVERLAY_VERSION }}
+        if: ${{ env.OLD_S6_OVERLAY_VERSION != env.NEW_S6_OVERLAY_VERSION }}
         uses: EndBug/add-and-commit@v7
         with:
           default_author: github_actions
