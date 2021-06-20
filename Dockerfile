@@ -10,11 +10,11 @@ RUN echo "**** upgrade packages ****" \
     && mkdir -p /s6 \
     && echo "**** download s6 overlay ****"
 RUN case ${TARGETPLATFORM} in \
-         "linux/amd64")  s6_platform=amd64  ;; \
-         "linux/arm64")  s6_platform=arm64  ;; \
-         "linux/arm/v7") s6_platform=armhf  ;; \
-         "linux/arm/v6") s6_platform=armhf  ;; \
-         "linux/386")    s6_platform=x86   ;; \
+        "linux/amd64")  s6_platform=amd64  ;; \
+        "linux/arm64")  s6_platform=arm64  ;; \
+        "linux/arm/v7") s6_platform=armhf  ;; \
+        "linux/arm/v6") s6_platform=armhf  ;; \
+        "linux/386")    s6_platform=x86   ;; \
     esac \
     && curl  https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-$s6_platform.tar.gz -o /tmp/s6-overlay.tar.gz \
     && echo "**** extract s6 overlay ****" \
@@ -33,11 +33,11 @@ RUN echo "**** upgrade packages ****" \
     && mkdir -p /s6 \
     && echo "**** download duplicacy ****"
 RUN case ${TARGETPLATFORM} in \
-         "linux/amd64")  duplicacy_platform=x64  ;; \
-         "linux/arm64")  duplicacy_platform=arm64  ;; \
-         "linux/arm/v7") duplicacy_platform=arm  ;; \
-         "linux/arm/v6") duplicacy_platform=arm  ;; \
-         "linux/386")    duplicacy_platform=i386   ;; \
+        "linux/amd64")  duplicacy_platform=x64  ;; \
+        "linux/arm64")  duplicacy_platform=arm64  ;; \
+        "linux/arm/v7") duplicacy_platform=arm  ;; \
+        "linux/arm/v6") duplicacy_platform=arm  ;; \
+        "linux/386")    duplicacy_platform=i386   ;; \
     esac \
     && echo "Duplicacy platform selected "$duplicacy_platform \
     && curl  https://github.com/gilbertchen/duplicacy/releases/latest/download/duplicacy_linux_$duplicacy_platform_$DUPLICACY_VERSION -o /tmp/duplicacy
