@@ -7,6 +7,7 @@ RUN printf "I'm building for TARGETPLATFORM=${TARGETPLATFORM}" \
     && printf ", TARGETVARIANT=${TARGETVARIANT} \n" \
     && printf "With uname -s : " && uname -s \
     && printf "and  uname -m : " && uname -mm
+    
 RUN case ${TARGETPLATFORM} in \
          "linux/amd64")  DUPLICACY_ARCH=x64  ;; \
          "linux/arm64")  DUPLICACY_ARCH=arm64  ;; \
