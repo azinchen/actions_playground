@@ -27,11 +27,14 @@ jobs:
         with:
           platforms: amd64,arm64,arm,386
 
+      - shell: bash
+        run: |
+          echo secrets.DOCKERHUB_USERNAME = ${{ secrets.DOCKERHUB_USERNAME }}
+          echo secrets.DOCKERHUB_PASSWORD = ${{ secrets.DOCKERHUB_PASSWORD }}
+
       - name: Login to DockerHub
         uses: docker/login-action@v1.9.0
         with:
-          echo secrets.DOCKERHUB_USERNAME = ${{ secrets.DOCKERHUB_USERNAME }}
-          echo secrets.DOCKERHUB_PASSWORD = ${{ secrets.DOCKERHUB_PASSWORD }}
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
@@ -50,6 +53,7 @@ jobs:
               echo $version
           }
           echo $(github_repo_latest_version gilbertchen/duplicacy) > current_duplicacy_version.txt
+
       - name: Upload math result for get_current_duplicacy
         uses: actions/upload-artifact@v2
         with:
