@@ -2,6 +2,10 @@ name: Share data between jobs
 
 on: [workflow_dispatch]
 
+env:
+  DUPLICACY_VERSION: ""
+  S6_OVERLAY_VERSION: ""
+
 jobs:
   get_current_duplicacy:
     name: Get current version of duplicacy
@@ -54,11 +58,13 @@ jobs:
               local version="${latest_tag:1}"
               echo $version
           }
+          ${{ env.DUPLICACY_VERSION }}=$(github_repo_latest_version gilbertchen/duplicacy)
+          ${{ env.S6_OVERLAY_VERSION }}=$(github_repo_latest_version just-containers/s6-overlay)
 
       - shell: bash
         run: |
-          echo DUPLICACY_VERSION=$(github_repo_latest_version gilbertchen/duplicacy) | tee settings.conf
-          echo S6_OVERLAY_VERSION=$(github_repo_latest_version just-containers/s6-overlay) | tee -a settings.conf
+          echo DUPLICACY_VERSION=${{ env.DUPLICACY_VERSION }} | tee settings.conf
+          echo S6_OVERLAY_VERSION=${{ env.S6_OVERLAY_VERSION }} | tee -a settings.conf
 
       - name: Commit changes
         uses: EndBug/add-and-commit@v7
