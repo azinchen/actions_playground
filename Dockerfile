@@ -16,8 +16,8 @@ RUN case ${TARGETPLATFORM} in \
         "linux/arm/v6") s6_platform=arm  ;; \
         "linux/386")    s6_platform=x86   ;; \
     esac \
+    && echo "s6 overlay platform selected "$s6_platform \
     && curl  https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-$s6_platform.tar.gz -o /tmp/s6-overlay.tar.gz \
-    && echo "**** extract s6 overlay ****" \
     && tar xfz /tmp/s6-overlay.tar.gz -C /s6/
 
 FROM alpine:latest AS duplicacy-builder
