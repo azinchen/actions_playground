@@ -105,7 +105,7 @@ jobs:
 
       - name: Update repo description
         uses: peter-evans/dockerhub-description@v2
-        if: ${{ env.GIT_BRANCH == 'main' || env.GIT_BRANCH == 'master' }}
+        if: ${{ env.GIT_BRANCH == 'main' }} || ${{ env.GIT_BRANCH == 'master' }}
         with:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
