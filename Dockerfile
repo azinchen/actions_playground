@@ -7,20 +7,20 @@ RUN echo "**** upgrade packages ****" && \
     echo "**** create folders ****" && \
     mkdir -p /s6 && \
     echo "**** download s6 overlay ****" && \
-    if [[ $TARGETPLATFORM == "linux/amd64" ]]; then \
-        s6_platform="amd64" \
-    elif [[ $TARGETPLATFORM == "linux/386" ]]; then \
-        s6_platform="x86" \
-    elif [[ $TARGETPLATFORM == "linux/arm/v6" ]]; then \
-        s6_platform="armhf" \
-    elif [[ $TARGETPLATFORM == "linux/arm/v7" ]]; then \
-        s6_platform="armhf" \
-    elif [[ $TARGETPLATFORM == "linux/arm64" ]]; then \
-        s6_platform="aarch64" \
-    else \
-        error Platform not supported \
-    fi \
-    curl  https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-$s6_platform.tar.gz -o /tmp/s6-overlay.tar.gz \
+    if [[ $TARGETPLATFORM == "linux/amd64" ]]; then && \
+        s6_platform="amd64" && \
+    elif [[ $TARGETPLATFORM == "linux/386" ]]; then && \
+        s6_platform="x86" && \
+    elif [[ $TARGETPLATFORM == "linux/arm/v6" ]]; then && \
+        s6_platform="armhf" && \
+    elif [[ $TARGETPLATFORM == "linux/arm/v7" ]]; then && \
+        s6_platform="armhf" && \
+    elif [[ $TARGETPLATFORM == "linux/arm64" ]]; then && \
+        s6_platform="aarch64" && \
+    else && \
+        error Platform not supported && \
+    fi && \
+    curl  https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-$s6_platform.tar.gz -o /tmp/s6-overlay.tar.gz && \
     echo "**** extract s6 overlay ****" && \
     tar xfz /tmp/s6-overlay.tar.gz -C /s6/
 
@@ -33,20 +33,20 @@ RUN echo "**** upgrade packages ****" && \
     echo "**** create folders ****" && \
     mkdir -p /s6 && \
     echo "**** download duplicacy ****" && \
-    if [[ $TARGETPLATFORM == "linux/amd64" ]]; then \
-        duplicacy_platform="x64" \
-    elif [[ $TARGETPLATFORM == "linux/386" ]]; then \
-        duplicacy_platform="i386" \
-    elif [[ $TARGETPLATFORM == "linux/arm/v6" ]]; then \
-        duplicacy_platform="arm" \
-    elif [[ $TARGETPLATFORM == "linux/arm/v7" ]]; then \
-        duplicacy_platform="arm" \
-    elif [[ $TARGETPLATFORM == "linux/arm64" ]]; then \
-        duplicacy_platform="arm64" \
-    else \
-        error Platform not supported \
-    fi \
-    curl  https://github.com/gilbertchen/duplicacy/releases/latest/download/duplicacy_linux_$duplicacy_platform_2.7.2 -o /tmp/duplicacy \
+    if [[ $TARGETPLATFORM == "linux/amd64" ]]; then && \
+        duplicacy_platform="x64" && \
+    elif [[ $TARGETPLATFORM == "linux/386" ]]; then && \
+        duplicacy_platform="i386" && \
+    elif [[ $TARGETPLATFORM == "linux/arm/v6" ]]; then && \
+        duplicacy_platform="arm" && \
+    elif [[ $TARGETPLATFORM == "linux/arm/v7" ]]; then && \
+        duplicacy_platform="arm" && \
+    elif [[ $TARGETPLATFORM == "linux/arm64" ]]; then && \
+        duplicacy_platform="arm64" && \
+    else && \
+        error Platform not supported && \
+    fi && \
+    curl  https://github.com/gilbertchen/duplicacy/releases/latest/download/duplicacy_linux_$duplicacy_platform_2.7.2 -o /tmp/duplicacy && \
     echo "**** extract s6 overlay ****" && \
     tar xfz /tmp/s6-overlay.tar.gz -C /s6/
 
