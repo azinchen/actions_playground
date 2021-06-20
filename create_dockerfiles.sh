@@ -33,7 +33,7 @@ else
 fi
 
 if [[ -z ${github_tag} ]]; then
-    github_tag="main"
+    github_tag="master"
     echo GitHub tag is not defined, use $github_tag version
 else
     echo GitHub tag $github_tag defined
