@@ -1,6 +1,9 @@
 name: CI_CD_Task
 
-on: [push]
+on:
+  push:
+  repository_dispatch:
+    types: [pn-deps-change]
 
 env:
   CONFIG_FILE: settings.conf
@@ -99,7 +102,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ github.token }}
 
-      - name: Build and push latest
+      - name: Build and push latest and sha
         if: ${{ env.GIT_BRANCH == 'main' || env.GIT_BRANCH == 'master' }}
         uses: docker/build-push-action@v2
         with:
