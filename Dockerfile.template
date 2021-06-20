@@ -31,8 +31,8 @@ RUN echo "**** upgrade packages ****" && \
     echo "**** install packages ****" && \
     apk --no-cache --no-progress add curl ca-certificates && \
     echo "**** create folders ****" && \
-    mkdir -p /s6 && \
-    echo "**** download duplicacy ****" && \
+    mkdir -p /s6
+RUN echo "**** download duplicacy ****" && \
     if [[ $TARGETPLATFORM == "linux/amd64" ]]; then && \
         duplicacy_platform="x64" && \
     elif [[ $TARGETPLATFORM == "linux/386" ]]; then && \
@@ -46,6 +46,7 @@ RUN echo "**** upgrade packages ****" && \
     else && \
         error Platform not supported && \
     fi && \
+    echo "Duplicacy platform selected "$duplicacy_platform && \
     curl  https://github.com/gilbertchen/duplicacy/releases/latest/download/duplicacy_linux_$duplicacy_platform___DUPLICACY_VERSION__ -o /tmp/duplicacy && \
     echo "**** extract s6 overlay ****" && \
     tar xfz /tmp/s6-overlay.tar.gz -C /s6/
