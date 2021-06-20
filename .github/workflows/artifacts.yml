@@ -112,25 +112,21 @@ jobs:
           repository: ${{ github.repository }}
 
       - name: main or master fired
-        uses: peter-evans/dockerhub-description@v2
-        if: ${{ env.GIT_BRANCH == 'main' || env.GIT_BRANCH == 'master' }}
         shell: bash
+        if: ${{ env.GIT_BRANCH == 'main' || env.GIT_BRANCH == 'master' }}
         run: echo main or master fired
 
       - name: test or foo fired
-        uses: peter-evans/dockerhub-description@v2
-        if: ${{ env.GIT_BRANCH == 'test' || env.GIT_BRANCH == 'foo' }}
         shell: bash
+        if: ${{ env.GIT_BRANCH == 'test' || env.GIT_BRANCH == 'foo' }}
         run: echo test or foo fired
 
       - name: nor test and nor foo fired
-        uses: peter-evans/dockerhub-description@v2
-        if: ${{ env.GIT_BRANCH != 'test' && env.GIT_BRANCH != 'foo' }}
         shell: bash
+        if: ${{ env.GIT_BRANCH != 'test' && env.GIT_BRANCH != 'foo' }}
         run: echo nor test and nor foo fired
 
       - name: nor main and nor foo fired
-        uses: peter-evans/dockerhub-description@v2
-        if: ${{ env.GIT_BRANCH != 'main' && env.GIT_BRANCH != 'foo' }}
         shell: bash
+        if: ${{ env.GIT_BRANCH != 'main' && env.GIT_BRANCH != 'foo' }}
         run: echo nor main and nor foo fired
