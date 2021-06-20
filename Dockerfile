@@ -9,15 +9,15 @@ RUN echo "**** upgrade packages ****" \
     && echo "**** create folders ****" \
     && mkdir -p /s6 \
     && echo "**** download s6 overlay ****"
-RUN case ${TARGETPLATFORM} in \
-        "linux/amd64")  s6_platform=amd64  ;; \
-        "linux/arm64")  s6_platform=aarch64  ;; \
-        "linux/arm/v7") s6_platform=armhf  ;; \
-        "linux/arm/v6") s6_platform=arm  ;; \
-        "linux/386")    s6_platform=x86   ;; \
-    esac \
-    && echo "s6 overlay platform selected "$s6_platform \
-    && curl https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-${s6_platform}.tar.gz -o /tmp/s6-overlay.tar.gz \
+RUN S6_ARCH=$(case ${TARGETPLATFORM} in \
+        "linux/amd64")  echo "amd64"    ;; \
+        "linux/arm64")  echo "aarch64"  ;; \
+        "linux/arm/v7") echo "armhf"    ;; \
+        "linux/arm/v6") echo "arm"      ;; \
+        "linux/386")    echo "x86"      ;; \
+        *)              echo ""         ;; esac) \
+    && echo "s6 overlay platform selected "$S6_ARCH \
+    && curl https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-${S6_ARCH}.tar.gz -o /tmp/s6-overlay.tar.gz \
     && tar xfz /tmp/s6-overlay.tar.gz -C /s6/
 
 FROM alpine:latest AS duplicacy-builder
@@ -32,15 +32,15 @@ RUN echo "**** upgrade packages ****" \
     && echo "**** create folders ****" \
     && mkdir -p /s6 \
     && echo "**** download duplicacy ****"
-RUN case ${TARGETPLATFORM} in \
-        "linux/amd64")  duplicacy_platform=x64  ;; \
-        "linux/arm64")  duplicacy_platform=arm64  ;; \
-        "linux/arm/v7") duplicacy_platform=arm  ;; \
-        "linux/arm/v6") duplicacy_platform=arm  ;; \
-        "linux/386")    duplicacy_platform=i386   ;; \
-    esac \
-    && echo "Duplicacy platform selected "$duplicacy_platform \
-    && curl https://github.com/gilbertchen/duplicacy/releases/latest/download/duplicacy_linux_${duplicacy_platform}_${DUPLICACY_VERSION} -o /tmp/duplicacy
+RUN DUPLICACY_ARCH=$(case ${TARGETPLATFORM} in \
+        "linux/amd64")  echo "x64"    ;; \
+        "linux/arm64")  echo "arm64"  ;; \
+        "linux/arm/v7") echo "arm"    ;; \
+        "linux/arm/v6") echo "arm"    ;; \
+        "linux/386")    echo "i386"   ;; \
+        *)              echo ""       ;; esac) \
+    && echo "Duplicacy platform selected "$DUPLICACY_ARCH \
+    && curl https://github.com/gilbertchen/duplicacy/releases/latest/download/duplicacy_linux_${DUPLICACY_ARCH}_${DUPLICACY_VERSION} -o /tmp/duplicacy
 
 FROM alpine:latest
 
