@@ -1,7 +1,6 @@
 FROM alpine:latest AS s6-builder
 
 ARG TARGETPLATFORM
-ENV S6_ARCH=amd64
 
 RUN echo "**** upgrade packages ****" \
     && apk --no-cache --no-progress upgrade \
@@ -17,15 +16,14 @@ RUN S6_ARCH=$(case ${TARGETPLATFORM} in \
         "linux/arm/v6") echo "arm"      ;; \
         "linux/386")    echo "x86"      ;; \
         *)              echo ""         ;; esac) \
-    && echo "s6 overlay platform selected "$S6_ARCH
-ADD https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-${S6_ARCH}.tar.gz /tmp/s6-overlay.tar.gz
-RUN tar xfz /tmp/s6-overlay.tar.gz -C /s6/
+    && echo "s6 overlay platform selected "$S6_ARCH \
+    && wget -q https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-${S6_ARCH}.tar.gz -qO /tmp/s6-overlay.tar.gz \
+    && tar xfz /tmp/s6-overlay.tar.gz -C /s6/
 
 FROM alpine:latest AS duplicacy-builder
 
 ARG TARGETPLATFORM
 ARG DUPLICACY_VERSION
-ENV DUPLICACY_ARCH=x64
 
 RUN echo "**** upgrade packages ****" \
     && apk --no-cache --no-progress upgrade \
@@ -37,8 +35,8 @@ RUN DUPLICACY_ARCH=$(case ${TARGETPLATFORM} in \
         "linux/arm/v6") echo "arm"    ;; \
         "linux/386")    echo "i386"   ;; \
         *)              echo ""       ;; esac) \
-    && echo "Duplicacy platform selected "$DUPLICACY_ARCH
-ADD https://github.com/gilbertchen/duplicacy/releases/latest/download/duplicacy_linux_${DUPLICACY_ARCH}_${DUPLICACY_VERSION} /tmp/duplicacy
+    && echo "Duplicacy platform selected "$DUPLICACY_ARCH \
+    && wget -q https://github.com/gilbertchen/duplicacy/releases/latest/download/duplicacy_linux_${DUPLICACY_ARCH}_${DUPLICACY_VERSION} -qO /tmp/duplicacy
 
 FROM alpine:latest
 
@@ -65,8 +63,8 @@ COPY --from=s6-builder /s6/ /
 COPY --from=duplicacy-builder /tmp/duplicacy /usr/bin/duplicacy
 COPY root/ /
 
-RUN chmod +x /app/* \
-    chmod +x /usr/bin/duplicacy
+RUN chmod +x /app/*
+RUN chmod +x /usr/bin/duplicacy
 
 VOLUME ["/config"]
 VOLUME ["/data"]
