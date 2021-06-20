@@ -1,17 +1,53 @@
-FROM alpine:latest AS builder
-
-ADD __S6_OVERLAY__ /tmp/s6-overlay.tar.gz
+FROM alpine:latest AS s6-builder
 
 RUN echo "**** upgrade packages ****" && \
     apk --no-cache --no-progress upgrade && \
     echo "**** install packages ****" && \
-    apk --no-cache --no-progress add tar && \
+    apk --no-cache --no-progress add tar curl ca-certificates && \
     echo "**** create folders ****" && \
     mkdir -p /s6 && \
+    echo "**** download s6 overlay ****" && \
+    [[ $$TARGETPLATFORM == "linux/amd64" ]]; then \
+        s6_platform="amd64" \
+    elif [[ $$TARGETPLATFORM == "linux/arm/v6" ]]; then \
+        s6_platform="armhf" \
+    elif [[ $$TARGETPLATFORM == "linux/arm/v7" ]]; then \
+        s6_platform="armhf" \
+    elif [[ $$TARGETPLATFORM == "linux/arm64" ]]; then \
+        s6_platform="aarch64" \
+    fi \
+    curl  https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-$s6_platform.tar.gz -o /tmp/s6-overlay.tar.gz \
     echo "**** extract s6 overlay ****" && \
     tar xfz /tmp/s6-overlay.tar.gz -C /s6/
 
-FROM __BASEIMAGE__
+FROM alpine:latest AS duplicacy-builder
+
+RUN echo "**** upgrade packages ****" && \
+    apk --no-cache --no-progress upgrade && \
+    echo "**** install packages ****" && \
+    apk --no-cache --no-progress add curl ca-certificates && \
+    echo "**** create folders ****" && \
+    mkdir -p /s6 && \
+    echo "**** download duplicacy ****" && \
+    s6_overlay_url() \
+    { \
+        local target=$1 \
+        echo https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-$(s6_overlay_arch $target).tar.gz \
+    } \
+    [[ $$TARGETPLATFORM == "linux/amd64" ]]; then \
+        duplicacy_platform="x64" \
+    elif [[ $$TARGETPLATFORM == "linux/arm/v6" ]]; then \
+        duplicacy_platform="arm" \
+    elif [[ $$TARGETPLATFORM == "linux/arm/v7" ]]; then \
+        duplicacy_platform="arm" \
+    elif [[ $$TARGETPLATFORM == "linux/arm64" ]]; then \
+        duplicacy_platform="arm64" \
+    fi \
+    curl  https://github.com/gilbertchen/duplicacy/releases/latest/download/duplicacy_linux_$duplicacy_platform___DUPLICACY_VERSION__ -o /tmp/duplicacy \
+    echo "**** extract s6 overlay ****" && \
+    tar xfz /tmp/s6-overlay.tar.gz -C /s6/
+
+FROM alpine:__BASEIMAGE_TAG__
 
 LABEL maintainer="Alexander Zinchenko <alexander@zinchenko.com>"
 
@@ -21,14 +57,10 @@ ENV BACKUP_CRON="" \
     PRIORITY_LEVEL=10 \
     EMAIL_LOG_LINES_IN_BODY=10
 
-ADD __DUPLICACY__ /usr/bin/duplicacy
-
 RUN echo "**** upgrade packages ****" && \
     apk --no-cache --no-progress upgrade && \
     echo "**** install packages ****" && \
     apk --no-cache --no-progress add bash zip ssmtp ca-certificates docker && \
-    echo "**** add duplicacy binary ****" && \
-    chmod +x /usr/bin/duplicacy && \
     echo "**** create folders ****" && \
     mkdir -p /config && \
     mkdir -p /data && \
@@ -36,10 +68,12 @@ RUN echo "**** upgrade packages ****" && \
     rm -rf /tmp/* && \
     rm -rf /var/cache/apk/*
 
-COPY --from=builder /s6/ /
+COPY --from=s6-builder /s6/ /
+COPY --from=duplicacy-builder /tmp/duplicacy /usr/bin/duplicacy
 COPY root/ /
 
-RUN chmod +x /app/*
+RUN chmod +x /app/* \
+    chmod +x /usr/bin/duplicacy
 
 VOLUME ["/config"]
 VOLUME ["/data"]

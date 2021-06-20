@@ -1,8 +1,5 @@
 #!/bin/bash
 
-targets=(x86_64 armhf aarch64)
-alpine_base_images=(alpine alpine alpine)
-
 github_repo_latest_tag()
 {
     local repo=$1
@@ -15,69 +12,6 @@ github_repo_latest_version()
     local latest_tag=$(github_repo_latest_tag $repo)
     local version="${latest_tag:1}"
     echo $version
-}
-
-duplicacy_arch()
-{
-    local target=$1
-    if [[ $target == "x86_64" ]]; then
-        platform=x64
-    elif [[ $target == "armhf" ]]; then
-        platform=arm
-    elif [[ $target == "aarch64" ]]; then
-        platform=arm64
-    fi
-    echo $platform
-}
-
-duplicacy_url()
-{
-    local target=$1
-    local version=$2
-    echo https://github.com/gilbertchen/duplicacy/releases/latest/download/duplicacy_linux_$(duplicacy_arch $target)_$version
-}
-
-qemu_static_arch()
-{
-    local target=$1
-    if [[ $target == "armhf" ]]; then
-        echo arm
-    else
-        echo $target
-    fi
-}
-
-s6_overlay_arch()
-{
-    local target=$1
-    if [[ $target == "x86_64" ]]; then
-        echo amd64
-    else
-        echo $target
-    fi
-}
-
-s6_overlay_url()
-{
-    local target=$1
-    echo https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-$(s6_overlay_arch $target).tar.gz
-}
-
-alpine_base_image()
-{
-    local target=$1
-    tag=$2
-    for index in ${!targets[*]}; do
-        if [[ $target == ${targets[$index]} ]]; then
-            if [[ $tag == "edge" ]]; then
-                echo ${alpine_base_images[$index]}:edge
-                return 0
-            else
-                echo ${alpine_base_images[$index]}:latest
-                return 0
-            fi
-        fi
-    done
 }
 
 s6_overlay_version=$1
@@ -99,20 +33,20 @@ else
 fi
 
 if [[ -z ${github_tag} ]]; then
-    github_tag=main
+    github_tag="main"
     echo GitHub tag is not defined, use $github_tag version
 else
     echo GitHub tag $github_tag defined
 fi
 
-for target in ${targets[*]}; do
-    if [[ $target == "x86_64" ]]; then
-        target_file=Dockerfile
-    else
-        target_file=Dockerfile.target-$target
-    fi
-    cp Dockerfile.template $target_file
-    sed -i -- "s%__S6_OVERLAY__%$(s6_overlay_url $target)%g" $target_file
-    sed -i -- "s%__DUPLICACY__%$(duplicacy_url $target $duplicacy_version)%g" $target_file
-    sed -i -- "s%__BASEIMAGE__%$(alpine_base_image $target $github_tag)%g" $target_file
-done
+target_file=Dockerfile
+
+cp Dockerfile.template $target_file
+sed -i -- "s%__DUPLICACY_VERSION__%$duplicacy_version%g" $target_file
+if [[ $github_tag == "edge" ]]; then
+    sed -i -- "s%__BASEIMAGE_TAG__%edge%g" $target_file
+elif [[ $github_tag == "main" ]]; then
+    sed -i -- "s%__BASEIMAGE_TAG__%latest%g" $target_file
+else
+    sed -i -- "s%__BASEIMAGE_TAG__%$github_tag%g" $target_file
+fi
