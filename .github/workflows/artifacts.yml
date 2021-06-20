@@ -14,7 +14,7 @@ env:
   GIT_BRANCH: ""
 
 jobs:
-  update_and_config:
+  update_config_build_and_deploy:
     name: Update config files, build and push Docker image
     runs-on: ubuntu-latest
     steps:
