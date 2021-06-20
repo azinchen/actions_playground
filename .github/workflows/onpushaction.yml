@@ -9,4 +9,7 @@ jobs:
     steps:
       - shell: bash
         run: |
+          source settings.conf
           echo "This action fired on git push"
+          echo DUPLICACY_VERSION=$DUPLICACY_VERSION
+          echo S6_OVERLAY_VERSION=$S6_OVERLAY_VERSION
