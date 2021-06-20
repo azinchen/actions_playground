@@ -1,0 +1,12 @@
+name: OnPush action
+
+on: [push]
+
+jobs:
+  print_data:
+    name: Print data
+    runs-on: ubuntu-latest
+    steps:
+      - shell: bash
+        run: |
+          echo "This action fired on git push"

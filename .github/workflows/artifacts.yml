@@ -1,6 +1,6 @@
 name: Share data between jobs
 
-on: [push]
+on: [workflow_dispatch]
 
 jobs:
   get_current_duplicacy:
