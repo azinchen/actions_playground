@@ -139,7 +139,7 @@ jobs:
           tags: ${{ github.repository }}:latest
 
       - name: Build and push armhf target
-        if: ${{ env.GIT_BRANCH == 'main' }}
+        if: ${{ env.GIT_BRANCH }} == 'main'
         uses: docker/build-push-action@v2
         with:
           platforms: linux/arm/v7
