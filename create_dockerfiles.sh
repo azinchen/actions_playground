@@ -1,8 +1,7 @@
 #!/bin/bash
 
 targets=(x86_64 armhf aarch64)
-alpine_base_latest_images=(alpine:latest arm32v6/alpine:latest arm64v8/alpine:latest)
-alpine_base_edge_images=(alpine:edge arm32v6/alpine:edge arm64v8/alpine:edge)
+alpine_base_images=(alpine arm32v6/alpine arm64v8/alpine)
 
 github_repo_latest_tag()
 {
@@ -71,10 +70,10 @@ alpine_base_image()
     for index in ${!targets[*]}; do
         if [[ $target == ${targets[$index]} ]]; then
             if [[ $tag == "edge" ]]; then
-                echo ${alpine_base_edge_images[$index]}
+                echo ${alpine_base_images[$index]}:edge
                 return 0
             else
-                echo ${alpine_base_latest_images[$index]}
+                echo ${alpine_base_images[$index]}:latest
                 return 0
             fi
         fi
@@ -93,7 +92,7 @@ if [[ -z ${duplicacy_version} ]]; then
     duplicacy_version=$(github_repo_latest_version gilbertchen/duplicacy)
 fi
 
-if [[ ! -z ${github_tag} ]] || [[ ${github_tag} -eq "master" ]]; then
+if [[ ! -z ${github_tag} ]] || [[ ${github_tag} -eq "main" ]]; then
     github_tag=latest
 fi
 
