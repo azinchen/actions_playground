@@ -58,8 +58,8 @@ jobs:
               local version="${latest_tag:1}"
               echo $version
           }
-          ${{ env.DUPLICACY_VERSION }}=$(github_repo_latest_version gilbertchen/duplicacy)
-          ${{ env.S6_OVERLAY_VERSION }}=$(github_repo_latest_version just-containers/s6-overlay)
+          env.DUPLICACY_VERSION=$(github_repo_latest_version gilbertchen/duplicacy)
+          env.S6_OVERLAY_VERSION=$(github_repo_latest_version just-containers/s6-overlay)
 
       - shell: bash
         run: |
