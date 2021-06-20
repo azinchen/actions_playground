@@ -17,7 +17,7 @@ RUN case ${TARGETPLATFORM} in \
         "linux/386")    s6_platform=x86   ;; \
     esac \
     && echo "s6 overlay platform selected "$s6_platform \
-    && curl  https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-$s6_platform.tar.gz -o /tmp/s6-overlay.tar.gz \
+    && curl https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-${s6_platform}.tar.gz -o /tmp/s6-overlay.tar.gz \
     && tar xfz /tmp/s6-overlay.tar.gz -C /s6/
 
 FROM alpine:latest AS duplicacy-builder
@@ -40,7 +40,7 @@ RUN case ${TARGETPLATFORM} in \
         "linux/386")    duplicacy_platform=i386   ;; \
     esac \
     && echo "Duplicacy platform selected "$duplicacy_platform \
-    && curl  https://github.com/gilbertchen/duplicacy/releases/latest/download/duplicacy_linux_$duplicacy_platform_$DUPLICACY_VERSION -o /tmp/duplicacy
+    && curl https://github.com/gilbertchen/duplicacy/releases/latest/download/duplicacy_linux_${duplicacy_platform}_${DUPLICACY_VERSION} -o /tmp/duplicacy
 
 FROM alpine:latest
 
