@@ -1,7 +1,7 @@
 #!/bin/bash
 
 targets=(x86_64 armhf aarch64)
-alpine_base_images=(alpine arm32v6/alpine arm64v8/alpine)
+alpine_base_images=(alpine alpine alpine)
 
 github_repo_latest_tag()
 {
