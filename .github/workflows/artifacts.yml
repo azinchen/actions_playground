@@ -87,7 +87,7 @@ jobs:
           add: '${{ env.CONFIG_FILE }}'
 
       - name: Update s6 overlay version in config
-        if: ${{ env.LD_S6_OVERLAY_VERSION != env.NEW_S6_OVERLAY_VERSION }}
+        if: ${{ env.OLD_S6_OVERLAY_VERSION != env.NEW_S6_OVERLAY_VERSION }}
         shell: bash
         run: |
           echo DUPLICACY_VERSION=${{ env.NEW_DUPLICACY_VERSION }} | tee ${{ env.CONFIG_FILE }}
