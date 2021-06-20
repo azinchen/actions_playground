@@ -5,7 +5,7 @@ ARG TARGETPLATFORM
 RUN echo "**** upgrade packages ****" \
     && apk --no-cache --no-progress upgrade \
     && echo "**** install packages ****" \
-    && apk --no-cache --no-progress add tar curl ca-certificates \
+    && apk --no-cache --no-progress add tar \
     && echo "**** create folders ****" \
     && mkdir -p /s6 \
     && echo "**** download s6 overlay ****"
