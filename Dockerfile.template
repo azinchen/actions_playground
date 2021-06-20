@@ -20,7 +20,7 @@ RUN echo "**** upgrade packages ****" && \
     elif [[ $TARGETPLATFORM == "linux/arm64" ]]; then && \
         s6_platform="aarch64" && \
     else && \
-        echo "Platform not supported" && && \
+        echo "Platform not supported" && \
     fi && \
     curl  https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-$s6_platform.tar.gz -o /tmp/s6-overlay.tar.gz && \
     echo "**** extract s6 overlay ****" && \
@@ -48,7 +48,7 @@ RUN echo "**** upgrade packages ****" && \
     elif [[ $TARGETPLATFORM == "linux/arm64" ]]; then && \
         duplicacy_platform="arm64" && \
     else && \
-        echo "Platform not supported" && && \
+        echo "Platform not supported" && \
     fi && \
     echo "Duplicacy platform selected "$duplicacy_platform && \
     curl  https://github.com/gilbertchen/duplicacy/releases/latest/download/duplicacy_linux_$duplicacy_platform___DUPLICACY_VERSION__ -o /tmp/duplicacy && \
