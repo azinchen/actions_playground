@@ -80,7 +80,7 @@ jobs:
 
       - name: Create Dockerfiles
         shell: bash
-        run: ./create_dockerfiles.sh {{ env.NEW_S6_OVERLAY_VERSION }} ${{ env.NEW_DUPLICACY_VERSION }} ${{ env.GIT_BRANCH }}
+        run: ./create_dockerfiles.sh ${{ env.NEW_S6_OVERLAY_VERSION }} ${{ env.NEW_DUPLICACY_VERSION }} ${{ env.GIT_BRANCH }}
 
       - name: Commit changes in Dockerfile x86-64 target
         uses: EndBug/add-and-commit@v7
