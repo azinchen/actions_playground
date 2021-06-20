@@ -19,6 +19,11 @@ jobs:
     name: Update config files, build and push Docker image
     runs-on: ubuntu-latest
     steps:
+      - name: Workfrow fired from
+        shell: bash
+        run: |
+          echo "Workflow fired from ${{ github.event_name }}"
+
       - name: Checkout
         uses: actions/checkout@v2
 
