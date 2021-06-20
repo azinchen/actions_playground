@@ -7,7 +7,7 @@ RUN echo "**** upgrade packages ****" && \
     echo "**** create folders ****" && \
     mkdir -p /s6 && \
     echo "**** download s6 overlay ****" && \
-    [[ $$TARGETPLATFORM == "linux/amd64" ]]; then \
+    if [[ $$TARGETPLATFORM == "linux/amd64" ]]; then \
         s6_platform="amd64" \
     elif [[ $$TARGETPLATFORM == "linux/arm/v6" ]]; then \
         s6_platform="armhf" \
@@ -29,7 +29,7 @@ RUN echo "**** upgrade packages ****" && \
     echo "**** create folders ****" && \
     mkdir -p /s6 && \
     echo "**** download duplicacy ****" && \
-    [[ $$TARGETPLATFORM == "linux/amd64" ]]; then \
+    if [[ $$TARGETPLATFORM == "linux/amd64" ]]; then \
         duplicacy_platform="x64" \
     elif [[ $$TARGETPLATFORM == "linux/arm/v6" ]]; then \
         duplicacy_platform="arm" \
