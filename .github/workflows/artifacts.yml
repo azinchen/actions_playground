@@ -101,11 +101,11 @@ jobs:
           platforms: linux/amd64,linux/386,linux/arm64,linux/arm/v7,linux/arm/v6
           build-args: DUPLICACY_VERSION=${{ env.NEW_DUPLICACY_VERSION }}
           push: true
-          tags: ${{ github.repository }
+          tags: ${{ github.repository }}
 
       - name: Update repo description
         uses: peter-evans/dockerhub-description@v2
-        if: ${{ env.GIT_BRANCH }} == 'main' || ${{ env.GIT_BRANCH }} == 'master'
+        if: ${{ env.GIT_BRANCH == 'main' || env.GIT_BRANCH == 'master' }}
         with:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
