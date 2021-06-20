@@ -8,14 +8,14 @@ RUN echo "**** upgrade packages ****" && \
     apk --no-cache --no-progress add tar curl ca-certificates && \
     echo "**** create folders ****" && \
     mkdir -p /s6 && \
-    echo "**** download s6 overlay ****" && \
+    echo "**** download s6 overlay ****" \
     case ${TARGETPLATFORM} in \
          "linux/amd64")  s6_platform=amd64  ;; \
          "linux/arm64")  s6_platform=arm64  ;; \
          "linux/arm/v7") s6_platform=armhf  ;; \
          "linux/arm/v6") s6_platform=armhf  ;; \
          "linux/386")    s6_platform=x86   ;; \
-    esac && \
+    esac \
     curl  https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-$s6_platform.tar.gz -o /tmp/s6-overlay.tar.gz && \
     echo "**** extract s6 overlay ****" && \
     tar xfz /tmp/s6-overlay.tar.gz -C /s6/
@@ -30,14 +30,14 @@ RUN echo "**** upgrade packages ****" && \
     apk --no-cache --no-progress add curl ca-certificates && \
     echo "**** create folders ****" && \
     mkdir -p /s6 && \
-    echo "**** download duplicacy ****" && \
+    echo "**** download duplicacy ****" \
     case ${TARGETPLATFORM} in \
          "linux/amd64")  duplicacy_platform=x64  ;; \
          "linux/arm64")  duplicacy_platform=arm64  ;; \
          "linux/arm/v7") duplicacy_platform=arm  ;; \
          "linux/arm/v6") duplicacy_platform=arm  ;; \
          "linux/386")    duplicacy_platform=i386   ;; \
-    esac && \
+    esac \
     echo "Duplicacy platform selected "$duplicacy_platform && \
     curl  https://github.com/gilbertchen/duplicacy/releases/latest/download/duplicacy_linux_$duplicacy_platform_2.7.2 -o /tmp/duplicacy && \
     echo "**** extract s6 overlay ****" && \
