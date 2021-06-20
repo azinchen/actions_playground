@@ -7,17 +7,11 @@ RUN printf "I'm building for TARGETPLATFORM=${TARGETPLATFORM}" \
     && printf ", TARGETVARIANT=${TARGETVARIANT} \n" \
     && printf "With uname -s : " && uname -s \
     && printf "and  uname -m : " && uname -mm
-RUN if [[ $TARGETPLATFORM == "linux/amd64" ]]; then \
-    &&     s6_platform="amd64" \
-    && elif [[ $TARGETPLATFORM == "linux/386" ]]; then \
-    &&     s6_platform="x86" \
-    && elif [[ $TARGETPLATFORM == "linux/arm/v6" ]]; then \
-    &&     s6_platform="armhf" \
-    && elif [[ $TARGETPLATFORM == "linux/arm/v7" ]]; then \
-    &&     s6_platform="armhf" \
-    && elif [[ $TARGETPLATFORM == "linux/arm64" ]]; then \
-    &&     s6_platform="aarch64" \
-    && else \
-    &&     echo "Platform not supported" \
-    && fi \
-    && printf "s6_platform = ${s6_platform}"
+RUN case ${TARGETPLATFORM} in \
+         "linux/amd64")  DUPLICACY_ARCH=x64  ;; \
+         "linux/arm64")  DUPLICACY_ARCH=arm64  ;; \
+         "linux/arm/v7") DUPLICACY_ARCH=arm  ;; \
+         "linux/arm/v6") DUPLICACY_ARCH=arm  ;; \
+         "linux/386")    DUPLICACY_ARCH=i386   ;; \
+    esac \
+    && printf "Duplicacy platform ${DUPLICACY_ARCH}"
