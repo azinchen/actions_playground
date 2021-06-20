@@ -45,8 +45,6 @@ cp Dockerfile.template $target_file
 sed -i -- "s%__DUPLICACY_VERSION__%$duplicacy_version%g" $target_file
 if [[ $github_tag == "edge" ]]; then
     sed -i -- "s%__BASEIMAGE_TAG__%edge%g" $target_file
-elif [[ $github_tag == "main" ]]; then
-    sed -i -- "s%__BASEIMAGE_TAG__%latest%g" $target_file
 else
-    sed -i -- "s%__BASEIMAGE_TAG__%$github_tag%g" $target_file
+    sed -i -- "s%__BASEIMAGE_TAG__%latest%g" $target_file
 fi
