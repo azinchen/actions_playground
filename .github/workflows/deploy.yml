@@ -1,7 +1,6 @@
 name: CI_CD_Task
 
 on:
-  push:
   repository_dispatch:
     types: [pn-deps-change]
 
