@@ -11,9 +11,9 @@ RUN echo "**** upgrade packages ****" \
     && echo "**** download s6 overlay ****"
 RUN case ${TARGETPLATFORM} in \
         "linux/amd64")  s6_platform=amd64  ;; \
-        "linux/arm64")  s6_platform=arm64  ;; \
+        "linux/arm64")  s6_platform=aarch64  ;; \
         "linux/arm/v7") s6_platform=armhf  ;; \
-        "linux/arm/v6") s6_platform=armhf  ;; \
+        "linux/arm/v6") s6_platform=arm  ;; \
         "linux/386")    s6_platform=x86   ;; \
     esac \
     && curl  https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-$s6_platform.tar.gz -o /tmp/s6-overlay.tar.gz \
