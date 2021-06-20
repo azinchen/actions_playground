@@ -1,8 +1,10 @@
 name: schedule_check_task
 
 on:
-  schedule:
-    - cron: 0 */3 * * *
+#  schedule:
+#    - cron: 0 */3 * * *
+  repository_dispatch:
+    types: [__UNUSED_DISPATCH__]
 
 env:
   CONFIG_FILE: settings.conf
