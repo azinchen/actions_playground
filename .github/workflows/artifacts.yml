@@ -107,8 +107,8 @@ jobs:
           build-args: DUPLICACY_VERSION=${{ env.NEW_DUPLICACY_VERSION }}
           push: true
           tags: |
-            ${{ github.repository }}:${{ github.sha }}
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ${{ github.repository }}:latest-${{ github.sha }}
+            ghcr.io/${{ github.repository }}:latest-${{ github.sha }}
             ${{ github.repository }}:latest
             ghcr.io/${{ github.repository }}:latest
 
