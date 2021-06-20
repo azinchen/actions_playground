@@ -1,7 +1,7 @@
 FROM alpine:latest AS s6-builder
 
 ARG TARGETPLATFORM
-ENV S6_ARCH
+ENV S6_ARCH=amd64
 
 RUN echo "**** upgrade packages ****" \
     && apk --no-cache --no-progress upgrade \
@@ -25,7 +25,7 @@ FROM alpine:latest AS duplicacy-builder
 
 ARG TARGETPLATFORM
 ARG DUPLICACY_VERSION
-ENV DUPLICACY_ARCH
+ENV DUPLICACY_ARCH=x64
 
 RUN echo "**** upgrade packages ****" \
     && apk --no-cache --no-progress upgrade \
