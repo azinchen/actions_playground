@@ -6,8 +6,8 @@ RUN echo "**** upgrade packages ****" && \
     apk --no-cache --no-progress add tar curl ca-certificates && \
     echo "**** create folders ****" && \
     mkdir -p /s6 && \
-    echo "**** download s6 overlay ****" && \
-    if [[ $TARGETPLATFORM == "linux/amd64" ]]; then && \
+    echo "**** download s6 overlay ****"
+RUN if [[ $TARGETPLATFORM == "linux/amd64" ]]; then && \
         s6_platform="amd64" && \
     elif [[ $TARGETPLATFORM == "linux/386" ]]; then && \
         s6_platform="x86" && \
