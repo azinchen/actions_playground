@@ -29,11 +29,6 @@ RUN echo "**** upgrade packages ****" && \
     echo "**** create folders ****" && \
     mkdir -p /s6 && \
     echo "**** download duplicacy ****" && \
-    s6_overlay_url() \
-    { \
-        local target=$1 \
-        echo https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-$(s6_overlay_arch $target).tar.gz \
-    } \
     [[ $$TARGETPLATFORM == "linux/amd64" ]]; then \
         duplicacy_platform="x64" \
     elif [[ $$TARGETPLATFORM == "linux/arm/v6" ]]; then \
