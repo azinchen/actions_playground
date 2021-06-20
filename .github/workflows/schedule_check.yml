@@ -1,6 +1,7 @@
 name: schedule_check_task
 
 on:
+  push:
 #  schedule:
 #    - cron: 0 */3 * * *
   repository_dispatch:
