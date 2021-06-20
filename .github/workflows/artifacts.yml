@@ -107,7 +107,7 @@ jobs:
           add: 'Dockerfile'
 
       - name: Build and push latest
-        if: ${{ env.GIT_BRANCH }} == 'main' || ${{ env.GIT_BRANCH }} == 'master'
+        if: (env.GIT_BRANCH == 'main') || (env.GIT_BRANCH == 'master')
         uses: docker/build-push-action@v2
         with:
           platforms: linux/amd64,linux/arm64
