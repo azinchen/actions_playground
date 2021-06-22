@@ -22,4 +22,6 @@ jobs:
     steps:
       - name: Print value
         shell: bash
-        run: echo "GitHub repository=${{ matrix.repo }} variable=${{ matrix.variable }}"
+        run: |
+          echo "GitHub repository=${{ matrix.repo }} variable=${{ matrix.variable }}"
+          jq --version
