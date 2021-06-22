@@ -19,7 +19,7 @@ jobs:
             variable: "DUPLICACY_VERSION"
           - repo: "just-containers/s6-overlay"
             variable: "S6_OVERLAY_VERSION"
-      steps:
+    steps:
       - name: Print value
         shell: bash
         run: echo "GitHub repository=${{ matrix.repo }} variable=${{ matrix.variable }}"
