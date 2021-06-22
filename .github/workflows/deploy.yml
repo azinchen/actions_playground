@@ -1,11 +1,11 @@
 name: CI_CD_Task
 
 on:
-  push:
-    branch:
-      - master
-      - edge
-      - main
+#  push:
+#    branch:
+#      - master
+#      - edge
+#      - main
   repository_dispatch:
     types: [on-deps-change]
 

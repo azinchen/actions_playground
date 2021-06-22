@@ -1,0 +1,25 @@
+name: update_dependencies
+
+on:
+  push:
+  schedule:
+    - cron: 0 */3 * * *
+
+env:
+  CONFIG_FILE: settings.conf
+
+jobs:
+  update_github_releases:
+    name: Update github dependency releases
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - repo: "gilbertchen/duplicacy"
+            variable: "DUPLICACY_VERSION"
+          - repo: "just-containers/s6-overlay"
+            variable: "S6_OVERLAY_VERSION"
+      steps:
+      - name: Print value
+        shell: bash
+        run: echo "GitHub repository=${{ matrix.repo }} variable=${{ matrix.variable }}"
