@@ -1,8 +1,10 @@
 name: nightly_build
 
 on:
-  schedule:
-    - cron: 0 2 * * *
+#  schedule:
+#    - cron: 0 2 * * *
+  repository_dispatch:
+    types: [__FAKE_DISPATCH__]
 
 env:
   CONFIG_FILE: settings.conf
