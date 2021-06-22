@@ -14,14 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        include:
-          - repo: "gilbertchen/duplicacy"
-            variable: "DUPLICACY_VERSION"
-          - repo: "just-containers/s6-overlay"
-            variable: "S6_OVERLAY_VERSION"
+        repository: ["gilbertchen/duplicacy", "just-containers/s6-overlay"]
     steps:
       - name: Print value
         shell: bash
         run: |
-          echo "GitHub repository=${{ matrix.repo }} variable=${{ matrix.variable }}"
+          echo "GitHub repository=${{ matrix.repository }}"
           jq --version
