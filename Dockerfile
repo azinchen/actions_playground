@@ -1,9 +1,8 @@
+# s6 overlay builder
 FROM alpine:latest AS s6-builder
 
 ENV PACKAGE="just-containers/s6-overlay"
-
 ARG TARGETPLATFORM
-
 COPY /github_packages.json /tmp/github_packages.json
 
 RUN echo "**** upgrade packages ****" \
@@ -27,12 +26,11 @@ RUN echo "**** upgrade packages ****" \
     && wget -q https://github.com/${PACKAGE}/releases/download/v${VERSION}/s6-overlay-${ARCH}.tar.gz -qO /tmp/s6-overlay.tar.gz \
     && tar xfz /tmp/s6-overlay.tar.gz -C /s6/
 
+# Duplicacy builder
 FROM alpine:latest AS duplicacy-builder
 
 ENV PACKAGE="gilbertchen/duplicacy"
-
 ARG TARGETPLATFORM
-
 COPY /github_packages.json /tmp/github_packages.json
 
 RUN echo "**** upgrade packages ****" \
@@ -52,6 +50,7 @@ RUN echo "**** upgrade packages ****" \
     && echo "${PACKAGE} version selected "$VERSION \
     && wget -q https://github.com/${PACKAGE}/releases/download/v${VERSION}/duplicacy_linux_${ARCH}_${VERSION} -qO /tmp/duplicacy
 
+# Main image
 FROM alpine:latest
 
 LABEL maintainer="Alexander Zinchenko <alexander@zinchenko.com>"
