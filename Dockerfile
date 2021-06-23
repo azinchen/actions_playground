@@ -19,10 +19,10 @@ RUN echo "**** upgrade packages ****" \
         "linux/arm/v7")   echo "armhf"    ;; \
         "linux/arm/v6")   echo "arm"      ;; \
         "linux/ppc64le")  echo "ppc64le"  ;; \
-        *)                echo "amd64"    ;; esac) \
-    && echo "${PACKAGE} platform selected "$ARCH \
+        *)                echo ""         ;; esac) \
+    && echo "${PACKAGE} platform selected $ARCH" \
     && VERSION=$(jq -r '.[] | select(.name == "'${PACKAGE}'").version' /tmp/github_packages.json) \
-    && echo "${PACKAGE} version selected "$VERSION \
+    && echo "${PACKAGE} version selected $VERSION" \
     && wget -q https://github.com/${PACKAGE}/releases/download/v${VERSION}/s6-overlay-${ARCH}.tar.gz -qO /tmp/s6-overlay.tar.gz \
     && tar xfz /tmp/s6-overlay.tar.gz -C /s6/
 
@@ -44,10 +44,10 @@ RUN echo "**** upgrade packages ****" \
         "linux/arm64")  echo "arm64"  ;; \
         "linux/arm/v7") echo "arm"    ;; \
         "linux/arm/v6") echo "arm"    ;; \
-        *)              echo "x64"    ;; esac) \
-    && echo "${PACKAGE} platform selected "$ARCH \
+        *)              echo ""       ;; esac) \
+    && echo "${PACKAGE} platform selected $ARCH" \
     && VERSION=$(jq -r '.[] | select(.name == "'${PACKAGE}'").version' /tmp/github_packages.json) \
-    && echo "${PACKAGE} version selected "$VERSION \
+    && echo "${PACKAGE} version selected $VERSION" \
     && wget -q https://github.com/${PACKAGE}/releases/download/v${VERSION}/duplicacy_linux_${ARCH}_${VERSION} -qO /tmp/duplicacy
 
 # Main image
