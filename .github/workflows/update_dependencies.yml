@@ -1,7 +1,7 @@
 name: update_dependencies
 
 on:
-#  push:
+  push:
   schedule:
     - cron: 0 */3 * * *
 
