@@ -6,7 +6,7 @@ on:
 #    - cron: 0 */3 * * *
 
 env:
-  CONFIG_FILE: "github_versions.json"
+  CONFIG_FILE: "github_packages.json"
 
 jobs:
   update_github_releases:
