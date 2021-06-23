@@ -1,7 +1,7 @@
 name: CI_CD_Task
 
 on:
-#  push:
+  push:
 #    branch:
 #      - master
 #      - edge
