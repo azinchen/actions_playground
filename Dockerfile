@@ -1,5 +1,7 @@
 FROM alpine:latest AS s6-builder
 
+ENV PACKAGE="just-containers/s6-overlay"
+
 ARG TARGETPLATFORM
 
 COPY /github_packages.json /tmp/github_packages.json
@@ -11,21 +13,23 @@ RUN echo "**** upgrade packages ****" \
     && echo "**** create folders ****" \
     && mkdir -p /s6 \
     && echo "**** download s6 overlay ****" \
-    && S6_ARCH=$(case ${TARGETPLATFORM} in \
+    && ARCH=$(case ${TARGETPLATFORM} in \
         "linux/amd64")    echo "amd64"    ;; \
         "linux/386")      echo "x86"      ;; \
         "linux/arm64")    echo "aarch64"  ;; \
         "linux/arm/v7")   echo "armhf"    ;; \
         "linux/arm/v6")   echo "arm"      ;; \
         "linux/ppc64le")  echo "ppc64le"  ;; \
-        *)                echo ""         ;; esac) \
-    && echo "s6 overlay platform selected "$S6_ARCH \
-    && VERSION=`jq -r '.[] | select(.name == "just-containers/s6-overlay").version' /tmp/github_packages.json` \
-    && echo "s6 overlay version selected "$VERSION \
-    && wget -q https://github.com/just-containers/s6-overlay/releases/download/v${VERSION}/s6-overlay-${S6_ARCH}.tar.gz -qO /tmp/s6-overlay.tar.gz \
+        *)                echo "amd64"    ;; esac) \
+    && echo "${PACKAGE} platform selected "$ARCH \
+    && VERSION=$(jq -r '.[] | select(.name == "'${PACKAGE}'").version' /tmp/github_packages.json) \
+    && echo "${PACKAGE} version selected "$VERSION \
+    && wget -q https://github.com/${PACKAGE}/releases/download/v${VERSION}/s6-overlay-${ARCH}.tar.gz -qO /tmp/s6-overlay.tar.gz \
     && tar xfz /tmp/s6-overlay.tar.gz -C /s6/
 
 FROM alpine:latest AS duplicacy-builder
+
+ENV PACKAGE="gilbertchen/duplicacy"
 
 ARG TARGETPLATFORM
 
@@ -36,17 +40,17 @@ RUN echo "**** upgrade packages ****" \
     && echo "**** install packages ****" \
     && apk --no-cache --no-progress add jq \
     && echo "**** download duplicacy ****" \
-    && DUPLICACY_ARCH=$(case ${TARGETPLATFORM} in \
+    && ARCH=$(case ${TARGETPLATFORM} in \
         "linux/amd64")  echo "x64"    ;; \
         "linux/386")    echo "i386"   ;; \
         "linux/arm64")  echo "arm64"  ;; \
         "linux/arm/v7") echo "arm"    ;; \
         "linux/arm/v6") echo "arm"    ;; \
-        *)              echo ""       ;; esac) \
-    && echo "Duplicacy platform selected "$DUPLICACY_ARCH \
-    && VERSION=jq -r '.[] | select(.name == "gilbertchen/duplicacy").version' /tmp/github_packages.json \
-    && echo "Duplicacy version selected "$VERSION \
-    && wget -q https://github.com/gilbertchen/duplicacy/releases/download/v${VERSION}/duplicacy_linux_${DUPLICACY_ARCH}_${VERSION} -qO /tmp/duplicacy
+        *)              echo "x64"    ;; esac) \
+    && echo "${PACKAGE} platform selected "$ARCH \
+    && VERSION=$(jq -r '.[] | select(.name == "'${PACKAGE}'").version' /tmp/github_packages.json) \
+    && echo "${PACKAGE} version selected "$VERSION \
+    && wget -q https://github.com/${PACKAGE}/releases/download/v${VERSION}/duplicacy_linux_${ARCH}_${VERSION} -qO /tmp/duplicacy
 
 FROM alpine:latest
 
