@@ -69,11 +69,7 @@ jobs:
                 (steps.branch.outputs.branch == 'master') }}
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: |
-            ${{ github.repository }}:latest-${{ steps.date.outputs.date }}
-            ghcr.io/${{ github.repository }}:latest-${{ steps.date.outputs.date }}
-            ${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:latest
+          image-ref: ${{ github.repository }}:latest
           format: 'template'
           template: '@/contrib/sarif.tpl'
           output: 'trivy-results.sarif'
@@ -95,9 +91,7 @@ jobs:
                 (steps.branch.outputs.branch != 'master') }}
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: |
-            ghcr.io/${{ github.repository }}:${{ steps.branch.outputs.branch }}
-            ${{ github.repository }}:${{ steps.branch.outputs.branch }}
+          image-ref: ${{ github.repository }}:${{ steps.branch.outputs.branch }}
           format: 'template'
           template: '@/contrib/sarif.tpl'
           output: 'trivy-results.sarif'
