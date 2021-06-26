@@ -97,6 +97,10 @@ jobs:
           image: '${{ github.repository }}:${{ steps.branch.outputs.branch }}'
           args: --file=Dockerfile
 
+      - name: Print sarif
+        shell: bash
+        run: cat snyk.sarif
+
       - name: Upload result to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v1
         with:
