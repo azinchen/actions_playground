@@ -64,17 +64,6 @@ jobs:
             ${{ github.repository }}:latest
             ghcr.io/${{ github.repository }}:latest
 
-      - name: Run Trivy vulnerability scanner
-        if: ${{ (steps.branch.outputs.branch == 'main') ||
-                (steps.branch.outputs.branch == 'master') }}
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${{ github.repository }}:latest
-          format: 'template'
-          template: '@/contrib/sarif.tpl'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH'
-
       - name: Build and push branch
         if: ${{ (steps.branch.outputs.branch != 'main') &&
                 (steps.branch.outputs.branch != 'master') }}
@@ -85,22 +74,6 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}:${{ steps.branch.outputs.branch }}
             ${{ github.repository }}:${{ steps.branch.outputs.branch }}
-
-      - name: Run Trivy vulnerability scanner
-        if: ${{ (steps.branch.outputs.branch != 'main') &&
-                (steps.branch.outputs.branch != 'master') }}
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${{ github.repository }}:${{ steps.branch.outputs.branch }}
-          format: 'template'
-          template: '@/contrib/sarif.tpl'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH'
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v1
-        with:
-          sarif_file: 'trivy-results.sarif'
 
       - name: Update repo description
         if: ${{ (steps.branch.outputs.branch == 'main') ||
