@@ -64,6 +64,17 @@ jobs:
             ${{ github.repository }}:latest
             ghcr.io/${{ github.repository }}:latest
 
+      - name: Run Snyk to check Docker image for vulnerabilities
+        if: ${{ (steps.branch.outputs.branch == 'main') ||
+                (steps.branch.outputs.branch == 'master') }}
+        continue-on-error: true
+        uses: snyk/actions/docker@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          image: '${{ github.repository }}:latest'
+          args: --file=Dockerfile
+
       - name: Build and push branch
         if: ${{ (steps.branch.outputs.branch != 'main') &&
                 (steps.branch.outputs.branch != 'master') }}
@@ -74,6 +85,22 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}:${{ steps.branch.outputs.branch }}
             ${{ github.repository }}:${{ steps.branch.outputs.branch }}
+
+      - name: Run Snyk to check Docker image for vulnerabilities
+        if: ${{ (steps.branch.outputs.branch != 'main') &&
+                (steps.branch.outputs.branch != 'master') }}
+        continue-on-error: true
+        uses: snyk/actions/docker@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          image: '${{ github.repository }}:latest'
+          args: --file=Dockerfile
+
+      - name: Upload result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: snyk.sarif
 
       - name: Update repo description
         if: ${{ (steps.branch.outputs.branch == 'main') ||
