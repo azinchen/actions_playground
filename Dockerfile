@@ -26,7 +26,7 @@ RUN echo "**** upgrade packages ****" \
     && tar xfz /tmp/s6-overlay.tar.gz -C /s6/
 
 # Duplicacy builder
-FROM alpine:latest AS duplicacy-builder
+FROM alpine:3.12.0 AS duplicacy-builder
 
 ENV PACKAGE="gilbertchen/duplicacy"
 ARG TARGETPLATFORM
