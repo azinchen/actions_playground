@@ -1,4 +1,4 @@
-name: analysis
+name: Trivy_Analysis
 
 on:
   push:
