@@ -51,6 +51,30 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1.3.0
 
+      - name: Build and push for Anchor scan
+        uses: docker/build-push-action@v2.5.0
+        with:
+          platforms: ${{ env.PLATFORMS }}
+          push: false
+          load: true
+          tags: ${{ github.repository }}:${{ github.sha }}
+
+      - name: Scan image
+        id: anchore_scan
+        uses: anchore/scan-action@v2.0.4
+        with:
+          image: ${{ github.repository }}:${{ github.sha }}
+          acs-report-enable: true
+
+      - name: Print sarif
+        shell: bash
+        run: cat ${{ steps.anchore_scan.outputs.sarif }}
+
+      - name: Upload Anchore Scan Report
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: ${{ steps.anchore_scan.outputs.sarif }}
+
       - name: Build and push latest
         if: ${{ (steps.branch.outputs.branch == 'main') ||
                 (steps.branch.outputs.branch == 'master') }}
