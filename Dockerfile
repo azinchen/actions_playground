@@ -49,7 +49,7 @@ RUN echo "**** upgrade packages ****" \
     && wget -q https://github.com/${PACKAGE}/releases/download/v${VERSION}/duplicacy_linux_${PACKAGEPLATFORM}_${VERSION} -qO /tmp/duplicacy
 
 # Main image
-FROM alpine:3.14
+FROM alpine:3.12.0
 
 LABEL maintainer="Alexander Zinchenko <alexander@zinchenko.com>"
 
