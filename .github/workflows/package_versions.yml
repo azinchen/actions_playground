@@ -47,10 +47,10 @@ jobs:
         if: steps.branch.outputs.created_by_pr == 'false'
         shell: bash
         run: |
-          NODE=$(jq '.[] | select(.name == "${{ matrix.repository }}").name')
+          NODE=$(jq '.[] | select(.name == "${{ matrix.repository }}").name' ${{ env.CONFIG_FILE }})
           echo "NODE=${NODE}"
 
-          if [[ `jq '.[] | select(.name == "gilbertchen/duplicacy").name'` == *"${{ matrix.repository }}"* ]]; then
+          if [[ ${NODE} == *"${{ matrix.repository }}"* ]]; then
             echo "Information about ${{ matrix.repository }} package not found in ${{ env.CONFIG_FILE }}, create empty"
             TEMPFILENAME=$(tempfile -d .)
             jq '.[]' ${{ env.CONFIG_FILE }} > ${TEMPFILENAME}
@@ -60,7 +60,6 @@ jobs:
             mv ${TEMPFILENAME} ${{ env.CONFIG_FILE }}
             cat ${{ env.CONFIG_FILE }}
           fi
-          echo "NODE=${NODE}"
 
       - name: Read config version
         if: steps.branch.outputs.created_by_pr == 'false'
