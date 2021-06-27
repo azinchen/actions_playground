@@ -51,7 +51,7 @@ jobs:
           echo "NODE=${NODE}"
           echo NODE
 
-          if [[ ${NODE} == *"${{ matrix.repository }}"* ]]; then
+          if [[ `jq '.[] | select(.name == "gilbertchen/duplicacy").name'` == *"${{ matrix.repository }}"* ]]; then
             echo "Information about ${{ matrix.repository }} package not found in ${{ env.CONFIG_FILE }}, create empty"
             TEMPFILENAME=$(tempfile -d .)
             jq '.[]' ${{ env.CONFIG_FILE }} > ${TEMPFILENAME}
