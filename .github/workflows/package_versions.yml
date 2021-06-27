@@ -50,11 +50,11 @@ jobs:
           NODE=$(jq '.[] | select(.name == "${{ matrix.repository }}").name' ${{ env.CONFIG_FILE }})
           echo "NODE=${NODE}"
 
-          if [[ ${NODE} == *"${{ matrix.repository }}"* ]]; then
+          if [[ ! ${NODE} == *"${{ matrix.repository }}"* ]]; then
             echo "Information about ${{ matrix.repository }} package not found in ${{ env.CONFIG_FILE }}, create empty"
             TEMPFILENAME=$(tempfile -d .)
             jq '.[]' ${{ env.CONFIG_FILE }} > ${TEMPFILENAME}
-            echo "{\"name\":\"${{ matrix.repository }}\",\"version\":\"\"" >> ${TEMPFILENAME}
+            echo "{\"name\":\"${{ matrix.repository }}\",\"version\":\"\"}" >> ${TEMPFILENAME}
             cat ${TEMPFILENAME}
             cat ${TEMPFILENAME} | jq -s > ${{ env.CONFIG_FILE }}
             mv ${TEMPFILENAME} ${{ env.CONFIG_FILE }}
