@@ -1,7 +1,6 @@
 name: Snyk_Analysis
 
 on:
-  push:
   schedule:
     - cron: 0 4 * * *
 
