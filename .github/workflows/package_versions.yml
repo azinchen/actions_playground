@@ -35,7 +35,7 @@ jobs:
           echo "Base branch=${BRANCH}, created_by_pr=${CREATED_BY_PR}"
 
       - name: Create package versions file if not exists
-        if: ${{ steps.branch.outputs.created_by_pr == 'false' }}
+        if: steps.branch.outputs.created_by_pr == 'false'
         shell: bash
         run: |
           if [[ ! -f "${{ env.CONFIG_FILE }}" ]]; then
@@ -47,11 +47,11 @@ jobs:
         if: steps.branch.outputs.created_by_pr == 'false'
         shell: bash
         run: |
-          NODE=`jq -r '.[] | select(.name == "${{ matrix.repository }}").name'`
+          NODE=$(jq -r '.[] | select(.name == "${{ matrix.repository }}").name')
 
           if [[ NODE != ${{ matrix.repository }} ]]; then
             echo "Information about ${{ matrix.repository }} package not found in ${{ env.CONFIG_FILE }}, create empty"
-            json=$(jq -r '.[]' ${{ env.CONFIG_FILE }})+$(echo ",{\"name\"=${{ matrix.repository }},\"version\"=\"\"")
+            json="$(jq -r '.[]' ${{ env.CONFIG_FILE }}); echo "{\"name\"=${{ matrix.repository }},\"version\"=\"\"")
             echo $json | jq -s > ${{ env.CONFIG_FILE }}
             cat ${{ env.CONFIG_FILE }}
             echo "TEMPORARILY NOT SUPPORTED, update ${{ env.CONFIG_FILE }} manually"
