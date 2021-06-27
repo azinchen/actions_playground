@@ -23,7 +23,7 @@ jobs:
         id: branch
         shell: bash
         run: |
-          $(echo ${GITHUB_REF} | grep -q "packageupdaterbot/")
+          echo ${GITHUB_REF} | grep -q "packageupdaterbot/"
           created_by_pr=false
           if [[ ! $? ]]; then
             created_by_pr=true
