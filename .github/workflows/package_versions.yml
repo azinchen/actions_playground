@@ -24,8 +24,7 @@ jobs:
         shell: bash
         run: |
           CREATED_BY_PR=false;
-          #if [[ ${GITHUB_REF} == *"packageupdaterbot/"* ]]; then
-          if [[ ${GITHUB_REF} == *"main"* ]]; then
+          if [[ ${GITHUB_REF} == *"packageupdaterbot/"* ]]; then
             CREATED_BY_PR=true;
           fi
           echo "::set-output name=created_by_pr::${CREATED_BY_PR}"
