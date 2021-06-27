@@ -25,9 +25,9 @@ jobs:
         run: |
           echo "GITHUB_REF="${GITHUB_REF}
           if [[ " ${GITHUB_REF} " =~ "packageupdaterbot/" ]]; then
-            created_by_pr=false;
-          else
             created_by_pr=true;
+          else
+            created_by_pr=false;
           fi
           echo "::set-output name=created_by_pr::${created_by_pr}"
 
