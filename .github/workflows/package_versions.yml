@@ -23,11 +23,8 @@ jobs:
         id: branch
         shell: bash
         run: |
-          echo ${GITHUB_REF} | grep -q "packageupdaterbot/"
           created_by_pr=false
-          if (( ! $? )); then
-            created_by_pr=true;
-          fi
+          $(echo ${GITHUB_REF} | grep -q "packageupdaterbot/"; if (( ! $? )); then created_by_pr=true; fi)
           echo "::set-output name=created_by_pr::$created_by_pr"
 
           branch=$(echo ${GITHUB_REF} | sed -e "s/.*\///g")
@@ -52,6 +49,7 @@ jobs:
 
           if [[ NODE != ${{ matrix.repository }} ]]; then
             echo "Information about ${{ matrix.repository }} package not found in ${{ env.CONFIG_FILE }}, create empty"
+            # $(jq -r '.[]' ${{ env.CONFIG_FILE }})",{\"name\"=${{ matrix.repository }},\"version\"=\"\""
             echo "TEMPORARILY NOT SUPPORTED, update ${{ env.CONFIG_FILE }} manually"
           fi
 
@@ -81,11 +79,8 @@ jobs:
         id: test_pr
         shell: bash
         run: |
-          git branch -r | grep -q ${{ steps.repository_version.outputs.branch }}
           found=false
-          if (( ! $? )); then
-            found=true;
-          fi
+          $(git branch -r | grep -q ${{ steps.repository_version.outputs.branch }}; if (( ! $? )); then found=true; fi)
           echo "::set-output name=found::$found"
           echo "PR found $found"
 
