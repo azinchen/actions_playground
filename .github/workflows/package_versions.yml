@@ -23,8 +23,7 @@ jobs:
         id: branch
         shell: bash
         run: |
-          created_by_pr=false
-          echo ${GITHUB_REF} | grep -q "packageupdaterbot/"; if [[ ! $? ]]; then created_by_pr=true; fi
+          echo ${GITHUB_REF} | grep -q "packageupdaterbot/"; if [[ ! $? ]]; then created_by_pr=true; else created_by_pr=false; fi
           echo "::set-output name=created_by_pr::${created_by_pr}"
 
           branch=$(echo ${GITHUB_REF} | sed -e "s/.*\///g")
