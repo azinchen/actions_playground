@@ -24,7 +24,7 @@ jobs:
         shell: bash
         run: |
           out=$(echo ${GITHUB_REF} | grep -q "packageupdaterbot/"; if (( ! $? )); then echo "yes"; else echo "no"; fi)
-          if [[ out == "yes" ]]; then
+          if [[ $out == "yes" ]]; then
             created_by_pr=true
           else
             created_by_pr=false
@@ -54,7 +54,7 @@ jobs:
           if [[ NODE != ${{ matrix.repository }} ]]; then
             echo "Information about ${{ matrix.repository }} package not found in ${{ env.CONFIG_FILE }}, create empty"
             json=$(jq -r '.[]' ${{ env.CONFIG_FILE }})+$(echo ",{\"name\"=${{ matrix.repository }},\"version\"=\"\"")
-            echo $json | jq -s '.' > ${{ env.CONFIG_FILE }}
+            echo $json | jq -s > ${{ env.CONFIG_FILE }}
             cat ${{ env.CONFIG_FILE }}
             echo "TEMPORARILY NOT SUPPORTED, update ${{ env.CONFIG_FILE }} manually"
           fi
