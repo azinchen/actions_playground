@@ -24,7 +24,8 @@ jobs:
         shell: bash
         run: |
           CREATED_BY_PR=false;
-          if [[ ${GITHUB_REF} == *"packageupdaterbot/"* ]]; then
+          #if [[ ${GITHUB_REF} == *"packageupdaterbot/"* ]]; then
+          if [[ ${GITHUB_REF} == *"main"* ]]; then
             CREATED_BY_PR=true;
           fi
           echo "::set-output name=created_by_pr::${CREATED_BY_PR}"
@@ -47,7 +48,7 @@ jobs:
         if: steps.branch.outputs.created_by_pr == 'false'
         shell: bash
         run: |
-          NODE=$(jq '.[] | select(.name == \"${{ matrix.repository }}\").name')
+          NODE=$(jq '.[] | select(.name == "${{ matrix.repository }}").name')
           echo "NODE=${NODE}"
 
           if [[ `jq '.[] | select(.name == "gilbertchen/duplicacy").name'` == *"${{ matrix.repository }}"* ]]; then
