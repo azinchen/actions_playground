@@ -48,16 +48,15 @@ jobs:
         shell: bash
         run: |
           NODE=$(jq '.[] | select(.name == "${{ matrix.repository }}").name' ${{ env.CONFIG_FILE }})
-          echo "NODE=${NODE}"
 
           if [[ ! ${NODE} == *"${{ matrix.repository }}"* ]]; then
             echo "Information about ${{ matrix.repository }} package not found in ${{ env.CONFIG_FILE }}, create empty"
             TEMPFILENAME=$(tempfile -d .)
-            jq '.[]' ${{ env.CONFIG_FILE }} > ${TEMPFILENAME}
-            echo "{\"name\":\"${{ matrix.repository }}\",\"version\":\"\"}" >> ${TEMPFILENAME}
+            (jq '.[]' ${{ env.CONFIG_FILE }}; echo "{\"name\":\"${{ matrix.repository }}\",\"version\":\"\"}") | jq -s > ${TEMPFILENAME}
+            echo "*** Temp file ***"
             cat ${TEMPFILENAME}
-            cat ${TEMPFILENAME} | jq -s > ${{ env.CONFIG_FILE }}
             mv ${TEMPFILENAME} ${{ env.CONFIG_FILE }}
+            echo "***Config file***"
             cat ${{ env.CONFIG_FILE }}
           fi
 

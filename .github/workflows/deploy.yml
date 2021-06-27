@@ -28,7 +28,7 @@ jobs:
         id: date
         shell: bash
         run: |
-          DATE=`date +%F_%H-%M-%S`
+          DATE=$(date +%F_%H-%M-%S)
           echo "::set-output name=date::${DATE}"
           echo "Build date=${DATE}"
 
