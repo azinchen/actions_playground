@@ -51,8 +51,9 @@ jobs:
 
           if [[ NODE != ${{ matrix.repository }} ]]; then
             echo "Information about ${{ matrix.repository }} package not found in ${{ env.CONFIG_FILE }}, create empty"
-            json=$(jq -r '.[]' ${{ env.CONFIG_FILE }}; echo ",{\"name\"=${{ matrix.repository }},\"version\"=\"\"")
-            echo $json | jq -s > ${{ env.CONFIG_FILE }}
+            JSON=$(jq -c '.[]' ${{ env.CONFIG_FILE }})
+            #JSON=$(jq -c '.[]' ${{ env.CONFIG_FILE }}; echo "{\"name\":\"${{ matrix.repository }}\",\"version\":\"\"")
+            echo ${JSON} | jq -s > ${{ env.CONFIG_FILE }}
             cat ${{ env.CONFIG_FILE }}
           fi
 
