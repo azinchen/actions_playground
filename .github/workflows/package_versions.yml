@@ -53,11 +53,8 @@ jobs:
             echo "Information about ${{ matrix.repository }} package not found in ${{ env.CONFIG_FILE }}, create empty"
             TEMPFILENAME=$(tempfile -d .)
             (jq '.[]' ${{ env.CONFIG_FILE }}; echo "{\"name\":\"${{ matrix.repository }}\",\"version\":\"\"}") | jq -s > ${TEMPFILENAME}
-            echo "*** Temp file ***"
             cat ${TEMPFILENAME}
             mv ${TEMPFILENAME} ${{ env.CONFIG_FILE }}
-            echo "***Config file***"
-            cat ${{ env.CONFIG_FILE }}
           fi
 
       - name: Read config version
@@ -111,8 +108,7 @@ jobs:
         with:
           token: ${{ secrets.DUPLICACY_REPO_PAT }}
           branch: ${{ steps.repository_version.outputs.branch }}
-          commit-message: Bump ${{ matrix.repository }} from ${{ steps.config_version.outputs.version }} \
-                          to ${{ steps.repository_version.outputs.version }}
+          commit-message: Bump ${{ matrix.repository }} from ${{ steps.config_version.outputs.version }} to ${{ steps.repository_version.outputs.version }}
           delete-branch: true
           title: Bump ${{ matrix.repository }} from ${{ steps.config_version.outputs.version }} to ${{ steps.repository_version.outputs.version }}
           body: |
