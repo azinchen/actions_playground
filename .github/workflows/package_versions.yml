@@ -47,15 +47,14 @@ jobs:
         if: steps.branch.outputs.created_by_pr == 'false'
         shell: bash
         run: |
-          NODE=$(jq '.[] | select(.name == "${{ matrix.repository }}").name')
-          echo "NODE=${NODE}"
-
-          if [[ " ${NODE} " =~ "${{ matrix.repository }}" ]]; then
+          if [[ " $(jq '.[] | select(.name == "${{ matrix.repository }}").name') " =~ "${{ matrix.repository }}" ]]; then
             echo "Information about ${{ matrix.repository }} package not found in ${{ env.CONFIG_FILE }}, create empty"
-            JSON=$(jq -c '.[]' ${{ env.CONFIG_FILE }})
-            #JSON=$(jq -c '.[]' ${{ env.CONFIG_FILE }}; echo "{\"name\":\"${{ matrix.repository }}\",\"version\":\"\"")
-            echo ${JSON}
-            echo ${JSON} | jq -s > ${{ env.CONFIG_FILE }}
+            TEMPFILENAME=$(tempfile -d .)
+            jq '.[]' ${{ env.CONFIG_FILE }} > ${TEMPFILENAME}
+            echo "{\"name\":\"${{ matrix.repository }}\",\"version\":\"\"" >> ${TEMPFILENAME}
+            cat ${TEMPFILENAME}
+            cat ${TEMPFILENAME} | jq -s > ${{ env.CONFIG_FILE }}
+            mv ${TEMPFILENAME} ${{ env.CONFIG_FILE }}
             cat ${{ env.CONFIG_FILE }}
           fi
 
@@ -85,9 +84,9 @@ jobs:
         id: test_pr
         shell: bash
         run: |
-          FOUND=true
+          FOUND=false
           if [[ " $(git branch -r) " =~ "${{ steps.repository_version.outputs.branch }}" ]]; then
-            FOUND=false;
+            FOUND=true;
           fi
           echo "::set-output name=found::${FOUND}"
           echo "PR found ${FOUND}"
