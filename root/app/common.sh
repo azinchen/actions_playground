@@ -6,7 +6,7 @@ hostname=""
 if [[ ! -z ${EMAIL_HOSTNAME_ALIAS} ]]; then
     hostname=$EMAIL_HOSTNAME_ALIAS
 else
-    hostname=`hostname`
+    hostname=$(hostname)
 fi
 
 backup_pid_file=/var/run/duplicacy_backup.pid

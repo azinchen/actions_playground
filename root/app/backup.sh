@@ -6,15 +6,13 @@ source "$my_dir/common.sh"
 
 log_dir=""
 log_file=/dev/null
-mail_file=/dev/null
 
 if [[ ! -z ${EMAIL_SMTP_SERVER} ]] && [[ ! -z ${EMAIL_TO} ]]; then
-    log_dir=`mktemp -d`
+    log_dir=$(mktemp -d)
     log_file=$log_dir/backup.log
-    mail_file=$log_dir/mailbody.log
 fi
 
-echo ========== Run backup job at `date` ========== | tee $log_file
+echo ========== Run backup job at $(date) ========== | tee $log_file
 
 if operation_in_progress backup; then
     duration=0
