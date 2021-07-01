@@ -1,4 +1,5 @@
 #!/usr/bin/with-contenv bash
+#shellcheck shell=bash disable=SC1008
 
 my_dir="$(dirname "${BASH_SOURCE[0]}")"
 source "$my_dir/common.sh"

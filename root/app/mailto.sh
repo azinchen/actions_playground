@@ -1,4 +1,5 @@
 #!/usr/bin/with-contenv bash
+#shellcheck shell=bash disable=SC1008
 
 log_dir=$1
 subject=$2
