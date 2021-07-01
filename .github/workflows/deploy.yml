@@ -26,9 +26,15 @@ jobs:
 
           BRANCH=$(echo ${GITHUB_REF} | sed -e "s/.*\///g")
           echo "::set-output name=branch::${BRANCH}"
-          echo "::set-output name=image_tag::${BRANCH}"
 
-          echo "Action branch=${BRANCH} tag=${TAG} ref=${GITHUB_REF}"
+          if [[ ${TAG} == 'true' ]]; then
+            IMAGE_TAG=${BRANCH:1}
+          else
+            IMAGE_TAG=${BRANCH}
+          fi
+          echo "::set-output name=image_tag::${IMAGE_TAG}"
+
+          echo "Action branch=${BRANCH} tag=${TAG} ref=${GITHUB_REF} image_tag=${IMAGE_TAG}"
 
       - name: Login to DockerHub
         uses: docker/login-action@v1.10.0
