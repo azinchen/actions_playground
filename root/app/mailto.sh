@@ -11,7 +11,7 @@ if [[ -n "${EMAIL_SMTP_SERVER}" ]] && [[ -n "${EMAIL_TO}" ]]; then
     boundary="_====_boundary_====_$(date +%Y%m%d%H%M%S)_====_"
 
     {
-        echo "To: "${EMAIL_TO}
+        echo "To: ""${EMAIL_TO}"
         echo "Subject: ${subject}"
         echo "Content-Type: multipart/mixed; boundary=\"$boundary\""
         echo "Mime-Version: 1.0"
@@ -33,9 +33,8 @@ if [[ -n "${EMAIL_SMTP_SERVER}" ]] && [[ -n "${EMAIL_TO}" ]]; then
     echo "" >> "${mail_file}"
 
     zip_log_file="${log_dir}"/backuplog.zip
-    zipout=$(zip -j "${zip_log_file}" "${log_file}")
 
-    if [ $? -ne 0 ]; then
+    if zipout=$(zip -j "${zip_log_file}" "${log_file}"); then
         echo "${zipout}"
     else
         {
@@ -50,7 +49,7 @@ if [[ -n "${EMAIL_SMTP_SERVER}" ]] && [[ -n "${EMAIL_TO}" ]]; then
         } >> "${mail_file}"
     fi
 
-    cat "${mail_file}" | ssmtp -F "${EMAIL_FROM_NAME}" "${EMAIL_TO}"
+    ssmtp -F "${EMAIL_FROM_NAME}" "${EMAIL_TO}" < "${mail_file}"
 
     rm -rf "${log_dir}"
 fi

@@ -30,13 +30,13 @@ else
     cd "${config_dir}" || (echo Folder "${config_dir}" not found; exit 128)
 
     IFS=';'
-    read -ra policies <<< ${PRUNE_KEEP_POLICIES}
+    read -ra policies <<< "${PRUNE_KEEP_POLICIES}"
     command="${PRUNE_OPTIONS}"
-    for policy in ${policies[@]}; do
-        command=""${command}" -keep "${policy}""
+    for policy in "${policies[@]}"; do
+        command="${command}"" -keep "${policy}""
     done
 
-    sh -c "nice -n "${PRIORITY_LEVEL}" duplicacy "${GLOBAL_OPTIONS}" prune "${command}"" | tee -a "${log_file}"
+    sh -c "nice -n ${PRIORITY_LEVEL} duplicacy ${GLOBAL_OPTIONS} prune ${command}" | tee -a "${log_file}"
     exitcode=${PIPESTATUS[0]}
 
     if [[ -n "${POST_PRUNE_SCRIPT}" ]];  then
@@ -52,14 +52,16 @@ else
     duration=$(echo "$(date +%s.%N) - ${start}" | bc)
 fi
 
+log_size=$($((wc -l < "${log_file}"))+1)
+
 if [ "${exitcode}" -eq 0 ]; then
-    echo Prune COMPLETED, duration "$(converts "${duration}")" | tee -a "${log_file}"
+    echo Prune COMPLETED, duration "$(converts "${duration}"), log size "${log_size}"" | tee -a "${log_file}"
     subject="duplicacy prune job id \"${hostname}:${SNAPSHOT_ID}\" COMPLETED"
 else
-    echo Prune FAILED, code "${exitcode}", duration "$(converts "${duration}")" | tee -a "${log_file}"
+    echo Prune FAILED, code "${exitcode}", duration "$(converts "${duration}"), log size "${log_size}"" | tee -a "${log_file}"
     subject="duplicacy prune job id \"${hostname}:${SNAPSHOT_ID}\" FAILED"
 fi
 
-/app/mailto.sh ${log_dir} "${subject}"
+/app/mailto.sh "${log_dir}" "${subject}"
 
 exit "${exitcode}"
