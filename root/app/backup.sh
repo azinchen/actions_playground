@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-#shellcheck shell=bash disable=SC1008
+# shellcheck shell=bash disable=SC1008
 
 my_dir="/app"
 source /app/common.sh
