@@ -2,7 +2,7 @@
 #shellcheck shell=bash disable=SC1008
 
 my_dir="$(dirname "${BASH_SOURCE[0]}")"
-source "$my_dir/common.sh"
+source "${my_dir}/common.sh"
 
 log_file=$1
 
@@ -12,7 +12,7 @@ fi
 
 if [[ ! -z ${JOB_RANDOM_DELAY} ]] && [[ $JOB_RANDOM_DELAY -ne 0 ]]; then
     delay=$(((RANDOM % ($JOB_RANDOM_DELAY - 1)) + 1))
-    echo Backup delayed by $(converts $delay) | tee -a $log_file
+    echo Backup delayed by $(converts $delay) | tee -a "${log_file}"
     sleep $delay
 fi
 
