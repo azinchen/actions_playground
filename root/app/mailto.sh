@@ -19,7 +19,7 @@ if [[ ! -z ${EMAIL_SMTP_SERVER} ]] && [[ ! -z ${EMAIL_TO} ]]; then
     echo "--${boundary}" >> $mail_file
     echo "" >> $mail_file
 
-    if [[ `wc -l $log_file | awk '{ print $1 }'` -gt $((2*$EMAIL_LOG_LINES_IN_BODY)) ]]; then
+    if [[ $(wc -l $log_file | awk '{ print $1 }') -gt $((2*$EMAIL_LOG_LINES_IN_BODY)) ]]; then
         head -$EMAIL_LOG_LINES_IN_BODY $log_file >> $mail_file
         echo "..." >> $mail_file
         tail -n $EMAIL_LOG_LINES_IN_BODY $log_file >> $mail_file
@@ -30,7 +30,7 @@ if [[ ! -z ${EMAIL_SMTP_SERVER} ]] && [[ ! -z ${EMAIL_TO} ]]; then
     echo "" >> $mail_file
 
     zip_log_file=$log_dir/backuplog.zip
-    zipout=`zip -j $zip_log_file $log_file`
+    zipout=$(zip -j $zip_log_file $log_file)
 
     if [ $? -ne 0 ]; then
         echo $zipout
