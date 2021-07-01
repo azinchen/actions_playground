@@ -26,6 +26,7 @@ jobs:
 
           BRANCH=$(echo ${GITHUB_REF} | sed -e "s/.*\///g")
           echo "::set-output name=branch::${BRANCH}"
+          echo "::set-output name=image_tag::${BRANCH}"
 
           echo "Action branch=${BRANCH} tag=${TAG} ref=${GITHUB_REF}"
 
@@ -50,16 +51,16 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1.4.1
 
-      - name: Build and push latest
+      - name: Build and push ${{ github.repository }}:${{ steps.git.outputs.image_tag }}
         uses: docker/build-push-action@v2.5.0
         with:
           platforms: ${{ env.PLATFORMS }}
           push: true
           tags: |
-            ${{ github.repository }}:${{ steps.git.outputs.branch }}
-            ghcr.io/${{ github.repository }}:${{ steps.git.outputs.branch }}
+            ${{ github.repository }}:${{ steps.git.outputs.image_tag }}
+            ghcr.io/${{ github.repository }}:${{ steps.git.outputs.image_tag }}
 
-      - name: Build and push latest
+      - name: Build and push ${{ github.repository }}:latest
         if: steps.git.outputs.tag == 'true'
         uses: docker/build-push-action@v2.5.0
         with:
@@ -75,7 +76,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          image: '${{ github.repository }}:${{ steps.git.outputs.branch }}'
+          image: '${{ github.repository }}:${{ steps.git.outputs.image_tag }}'
           args: --file=Dockerfile
 
       - name: Upload result to GitHub Code Scanning
