@@ -3,8 +3,8 @@
 
 hostname=""
 
-if [[ ! -z ${EMAIL_HOSTNAME_ALIAS} ]]; then
-    hostname=$EMAIL_HOSTNAME_ALIAS
+if [[ -n "${EMAIL_HOSTNAME_ALIAS}" ]]; then
+    hostname="${EMAIL_HOSTNAME_ALIAS}"
 else
     hostname="$(hostname)"
 fi
