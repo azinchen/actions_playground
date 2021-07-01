@@ -45,7 +45,7 @@ else
     if [ "${exitcode}" -eq 0 ]; then
         config_dir=/config
 
-        cd ${config_dir} || (echo Folder "${config_dir}" not found; exit 128)
+        cd "${config_dir}" || (echo Folder "${config_dir}" not found; exit 128)
 
         nice -n "${PRIORITY_LEVEL}" duplicacy "${GLOBAL_OPTIONS}" backup "${BACKUP_OPTIONS}" | tee -a "${log_file}"
         exitcode=${PIPESTATUS[0]}
