@@ -1,8 +1,8 @@
 #!/usr/bin/with-contenv bash
 #shellcheck shell=bash disable=SC1008
 
-my_dir="$(dirname "${BASH_SOURCE[0]}")"
-source "${my_dir}/common.sh"
+my_dir="/app"
+source /app/common.sh
 
 log_dir=""
 log_file=/dev/null
@@ -22,7 +22,7 @@ else
     create_prune_pid_file ${$}
     trap remove_prune_pid_file INT TERM EXIT
 
-    "${my_dir}/delay.sh" "${log_file}"
+    /app/delay.sh "${log_file}"
 
     start=$(date +%s.%N)
     config_dir=/config
@@ -36,7 +36,7 @@ else
         command="$command -keep $policy"
     done
 
-    sh -c "nice -n $PRIORITY_LEVEL duplicacy $GLOBAL_OPTIONS prune $command" | tee -a "${log_file}"
+    sh -c "nice -n ${PRIORITY_LEVEL} duplicacy ${GLOBAL_OPTIONS} prune $command" | tee -a "${log_file}"
     exitcode=${PIPESTATUS[0]}
 
     if [[ ! -z ${POST_PRUNE_SCRIPT} ]];  then
@@ -52,14 +52,14 @@ else
     duration=$(echo "$(date +%s.%N) - $start" | bc)
 fi
 
-if [ ${exitcode} -eq 0 ]; then
+if [ "${exitcode}" -eq 0 ]; then
     echo Prune COMPLETED, duration $(converts $duration) | tee -a "${log_file}"
     subject="duplicacy prune job id \"${hostname}:${SNAPSHOT_ID}\" COMPLETED"
 else
-    echo Prune FAILED, code ${exitcode}, duration $(converts $duration) | tee -a "${log_file}"
+    echo Prune FAILED, code "${exitcode}", duration $(converts $duration) | tee -a "${log_file}"
     subject="duplicacy prune job id \"${hostname}:${SNAPSHOT_ID}\" FAILED"
 fi
 
-"${my_dir}/mailto.sh" ${log_dir} "${subject}"
+/app/mailto.sh ${log_dir} "${subject}"
 
-exit ${exitcode}
+exit "${exitcode}"

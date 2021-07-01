@@ -9,10 +9,10 @@ if [[ $RUN_JOB_IMMEDIATELY == "yes" ]] || [[ $RUN_JOB_IMMEDIATELY == "YES" ]]; t
         exitcode=$?
     fi
 
-    if [[ "${PRUNE_CRON}" ]] && [[ ${exitcode} -eq 0 ]]; then
+    if [[ "${PRUNE_CRON}" ]] && [[ "${exitcode}" -eq 0 ]]; then
         /app/prune.sh
         exitcode=$?
     fi
 fi
 
-exit ${exitcode}
+exit "${exitcode}"
