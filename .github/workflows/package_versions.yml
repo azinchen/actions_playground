@@ -1,4 +1,4 @@
-name: Update_GitHub_package_versions
+name: Update GitHub package versions
 
 on:
   schedule:
