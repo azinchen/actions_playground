@@ -10,19 +10,19 @@ if [[ -n "${EMAIL_SMTP_SERVER}" ]] && [[ -n "${EMAIL_TO}" ]]; then
 
     boundary="_====_boundary_====_$(date +%Y%m%d%H%M%S)_====_"
 
-    echo "To: "${EMAIL_TO}"" >> "${mail_file}"
+    echo "To: "${EMAIL_TO} >> "${mail_file}"
     echo "Subject: ${subject}" >> "${mail_file}"
     echo "Content-Type: multipart/mixed; boundary=\"$boundary\"" >> "${mail_file}"
     echo "Mime-Version: 1.0" >> "${mail_file}"
     echo "" >> "${mail_file}"
 
-    echo "--"${boundary} >> "${mail_file}"
+    echo "--""${boundary}" >> "${mail_file}"
     echo "" >> "${mail_file}"
 
-    if [[ $(wc -l "${log_file}" | awk '{ print $1 }') -gt $((2*$EMAIL_LOG_LINES_IN_BODY)) ]]; then
-        head -$EMAIL_LOG_LINES_IN_BODY "${log_file}" >> "${mail_file}"
+    if [[ $(wc -l "${log_file}" | awk '{ print $1 }') -gt $((2*EMAIL_LOG_LINES_IN_BODY)) ]]; then
+        head -"${EMAIL_LOG_LINES_IN_BODY}" "${log_file}" >> "${mail_file}"
         echo "..." >> "${mail_file}"
-        tail -n $EMAIL_LOG_LINES_IN_BODY "${log_file}" >> "${mail_file}"
+        tail -n "${EMAIL_LOG_LINES_IN_BODY}" "${log_file}" >> "${mail_file}"
     else
         cat "${log_file}" >> "${mail_file}"
     fi
@@ -33,16 +33,16 @@ if [[ -n "${EMAIL_SMTP_SERVER}" ]] && [[ -n "${EMAIL_TO}" ]]; then
     zipout=$(zip -j "${zip_log_file}" "${log_file}")
 
     if [ $? -ne 0 ]; then
-        echo $zipout
+        echo "${zipout}"
     else
-        echo "--${boundary}" >> "${mail_file}"
+        echo "--""${boundary}" >> "${mail_file}"
         echo "Content-Transfer-Encoding: base64" >> "${mail_file}"
         echo "Content-Type: application/zip; name=backuplog.zip" >> "${mail_file}"
         echo "Content-Disposition: attachment; filename=backuplog.zip" >> "${mail_file}"
         echo "" >> "${mail_file}"
         base64 "${zip_log_file}" >> "${mail_file}"
         echo "" >> "${mail_file}"
-        echo "--"${boundary}"--" >> "${mail_file}"
+        echo "--""${boundary}""--" >> "${mail_file}"
     fi
 
     cat "${mail_file}" | ssmtp -F "${EMAIL_FROM_NAME}" "${EMAIL_TO}"

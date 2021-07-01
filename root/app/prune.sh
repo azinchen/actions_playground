@@ -7,12 +7,12 @@ source /app/common.sh
 log_dir=""
 log_file=/dev/null
 
-if [[ ! -z ${EMAIL_SMTP_SERVER} ]] && [[ ! -z ${EMAIL_TO} ]]; then
+if [[ -n "${EMAIL_SMTP_SERVER}" ]] && [[ -n "${EMAIL_TO}" ]]; then
     log_dir=$(mktemp -d)
     log_file=${log_dir}/backup.log
 fi
 
-echo ========== Run prune job at $(date) ========== | tee "${log_file}"
+echo ========== Run prune job at "$(date)" ========== | tee "${log_file}"
 
 if operation_in_progress prune; then
     duration=0
@@ -27,20 +27,20 @@ else
     start=$(date +%s.%N)
     config_dir=/config
 
-    cd ${config_dir}
+    cd "${config_dir}" || (echo Folder "${config_dir}" not found; exit 128)
 
     IFS=';'
-    read -ra policies <<< $PRUNE_KEEP_POLICIES
-    command="$PRUNE_OPTIONS"
+    read -ra policies <<< ${PRUNE_KEEP_POLICIES}
+    command="${PRUNE_OPTIONS}"
     for policy in ${policies[@]}; do
-        command="$command -keep $policy"
+        command=""${command}" -keep "${policy}""
     done
 
-    sh -c "nice -n ${PRIORITY_LEVEL} duplicacy ${GLOBAL_OPTIONS} prune $command" | tee -a "${log_file}"
+    sh -c "nice -n "${PRIORITY_LEVEL}" duplicacy "${GLOBAL_OPTIONS}" prune "${command}"" | tee -a "${log_file}"
     exitcode=${PIPESTATUS[0]}
 
-    if [[ ! -z ${POST_PRUNE_SCRIPT} ]];  then
-        if [[ -f ${POST_PRUNE_SCRIPT} ]]; then
+    if [[ -n "${POST_PRUNE_SCRIPT}" ]];  then
+        if [[ -f "${POST_PRUNE_SCRIPT}" ]]; then
             echo Run post prune script | tee -a "${log_file}"
             export log_file exitcode duration my_dir # Variables I require in my post prune script
             sh -c "${POST_PRUNE_SCRIPT}" | tee -a "${log_file}"
@@ -49,14 +49,14 @@ else
         fi
     fi
 
-    duration=$(echo "$(date +%s.%N) - $start" | bc)
+    duration=$(echo "$(date +%s.%N) - ${start}" | bc)
 fi
 
 if [ "${exitcode}" -eq 0 ]; then
-    echo Prune COMPLETED, duration $(converts $duration) | tee -a "${log_file}"
+    echo Prune COMPLETED, duration "$(converts "${duration}")" | tee -a "${log_file}"
     subject="duplicacy prune job id \"${hostname}:${SNAPSHOT_ID}\" COMPLETED"
 else
-    echo Prune FAILED, code "${exitcode}", duration $(converts $duration) | tee -a "${log_file}"
+    echo Prune FAILED, code "${exitcode}", duration "$(converts "${duration}")" | tee -a "${log_file}"
     subject="duplicacy prune job id \"${hostname}:${SNAPSHOT_ID}\" FAILED"
 fi
 
