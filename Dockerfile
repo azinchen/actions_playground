@@ -58,7 +58,7 @@ COPY --from=ovpn-builder /ovpn/ /rootfs/ovpn/
 FROM alpine:3.14
 
 LABEL maintainer="Alexander Zinchenko <alexander@zinchenko.com>"
-LABEL version=0.9.8
+LABEL version=0.9.1
 
 ENV URL_NORDVPN_API="https://api.nordvpn.com/server" \
     URL_RECOMMENDED_SERVERS="https://nordvpn.com/wp-admin/admin-ajax.php?action=servers_recommendations" \
