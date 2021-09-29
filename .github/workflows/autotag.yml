@@ -3,7 +3,7 @@ name: Create Tag when new verion released
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build:
