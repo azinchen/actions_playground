@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        repository: ["gilbertchen/duplicacy", "just-containers/s6-overlay"]
+        repository: ["just-containers/s6-overlay"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2.3.4
@@ -60,7 +60,7 @@ jobs:
         id: config_version
         shell: bash
         run: |
-          VERSION=$(jq -r '.[] | select(.name == "${{ matrix.repository }}").version' ${{ env.CONFIG_FILE }})
+          VERSION=$(jq -r '.[] | select(.name == "'${{ matrix.repository }}'").version' ${{ env.CONFIG_FILE }})
           echo "::set-output name=version::${VERSION}"
           echo "Config version=${VERSION}"
 
@@ -82,7 +82,7 @@ jobs:
         shell: bash
         run: |
           TEMPFILENAME=$(tempfile -d .)
-          jq '.[] | select(.name == "${{ matrix.repository }}").version = "${{ steps.repository_version.outputs.version }}"' ${{ env.CONFIG_FILE }} | jq -s > ${TEMPFILENAME}
+          jq '.[] | select(.name == "'${{ matrix.repository }}'").version = "'${{ steps.repository_version.outputs.version }}'"' ${{ env.CONFIG_FILE }} | jq -s > ${TEMPFILENAME}
           mv ${TEMPFILENAME} ${{ env.CONFIG_FILE }}
 
       - name: Create Pull Request, Bump ${{ matrix.repository }} from ${{ steps.config_version.outputs.version }} to ${{ steps.repository_version.outputs.version }}
@@ -90,7 +90,7 @@ jobs:
             (steps.branch.outputs.from_pr == 'false')
         uses: peter-evans/create-pull-request@v3.10.1
         with:
-          token: ${{ secrets.DUPLICACY_REPO_PAT }}
+          token: ${{ secrets.NORDVPN_REPO_PAT }}
           branch: ${{ steps.repository_version.outputs.branch }}
           commit-message: Bump ${{ matrix.repository }} from ${{ steps.config_version.outputs.version }} to ${{ steps.repository_version.outputs.version }}
           delete-branch: true

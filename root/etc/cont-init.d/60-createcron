@@ -1,21 +1,19 @@
 #!/usr/bin/with-contenv bash
-# shellcheck shell=bash disable=SC1008
 
-cron_file=/var/spool/cron/crontabs/root
+cron_dir="/var/spool/cron/crontabs"
+cron_file="$cron_dir/root"
 
-rm -f $cron_file
-touch $cron_file
+rm -f "$cron_file"
+touch "$cron_file"
 
-if [[ "${BACKUP_CRON}" ]]; then
-    echo "$BACKUP_CRON backup.sh" >> $cron_file
+if [[ "${RECREATE_VPN_CRON}" ]]; then
+    echo "Create reconnection cron"
+    echo "$RECREATE_VPN_CRON reconnect.sh" >> "$cron_file"
 fi
 
-if [[ "${PRUNE_CRON}" ]]; then
-    echo "$PRUNE_CRON prune.sh" >> $cron_file
-fi
-
-if [[ "${BACKUP_END_CRON}" ]]; then
-    echo "$BACKUP_END_CRON end_backup.sh" >> $cron_file
+if [[ "${CHECK_CONNECTION_CRON}" ]]; then
+    echo "Create connectivity check cron"
+    echo "$CHECK_CONNECTION_CRON checkconnection.sh" >> "$cron_file"
 fi
 
 exit 0

@@ -1,94 +1,209 @@
-# Duplicacy
+[![logo](https://github.com/azinchen/nordvpn/raw/master/NordVpn_logo.png)](https://www.nordvpn.com/)
+
+# NordVPN
 
 [![Docker Pulls][dockerhub-pulls]][dockerhub-link]
 [![GitHub build][github-build]][github-link]
 [![Docker image size][dockerhub-size]][dockerhub-link]
 [![GitHub Last Commit][github-lastcommit]][github-link]
 
-`azinchen/duplicacy` is a Docker image to easily perform automated backups. It uses [Duplicacy][duplicacy-home] under the hood, and therefore supports:
+This is an OpenVPN client docker container that use least loaded NordVPN servers. It makes routing containers' traffic through OpenVPN easy.
 
-- Multiple storage backends: S3, Backblaze B2, Hubic, Dropbox, SFTP...
-- Client-side encryption
-- Deduplication
-- Multi-versioning
-- ... and more generally, all the features that duplicacy has.
+## What is OpenVPN?
 
-`azinchen/duplicacy` uses [Duplicacy Command Line version][duplicacy-github] `2.7.2`.
+OpenVPN is an open-source software application that implements virtual private network (VPN) techniques for creating secure point-to-point or site-to-site connections in routed or bridged configurations and remote access facilities. It uses a custom security protocol that utilizes SSL/TLS for key exchange. It is capable of traversing network address translators (NATs) and firewalls.
 
-## Supported Architectures
+## How to use this image
+
+This container was designed to be started first to provide a connection to other containers (using `--net=container:vpn`, see below *Starting an NordVPN client instance*).
+
+**NOTE**: More than the basic privileges are needed for NordVPN. With docker 1.2 or newer you can use the `--cap-add=NET_ADMIN` and `--device /dev/net/tun` options. Earlier versions, or with fig, and you'll have to run it in privileged mode.
+
+**NOTE 2**: If you need a template for using this container with `docker-compose`, see the example [file](https://github.com/dperson/openvpn-client/raw/master/docker-compose.yml).
+
+### Supported Architectures
 
 The image supports multiple architectures such as `amd64`, `x86`, `arm/v6`, `arm/v7` and `arm64`.
 
-## Starting an Duplicacy instance
-
-You can run the following command to stand up a standalone instance of Duplicacy on Docker:
+### Starting an NordVPN instance
 
 ```bash
-docker run \
-  -v path_to_data:/data \
-  -e BACKUP_CRON="0 1 * * *" \
-  -e SNAPSHOT_ID="id" \
-  -e STORAGE_URL="url" \
-  azinchen/duplicacy
+docker run -ti --cap-add=NET_ADMIN --device /dev/net/tun --name vpn \
+           -e USER=user@email.com -e PASS=password \
+           -e RANDOM_TOP=n -e RECREATE_VPN_CRON=string \
+           -e COUNTRY=country1;country2 -e CATEGORY=category1;category2 \
+           -e PROTOCOL=protocol -d azinchen/nordvpn
+```
+
+Once it's up other containers can be started using it's network connection:
+
+```bash
+docker run -it --net=container:vpn -d some/docker-container
+```
+
+### docker-compose
+
+```Dockerfile
+version: "3"
+services:
+  vpn:
+    image: azinchen/nordvpn:latest
+    cap_add:
+      - net_admin
+    devices:
+      - /dev/net/tun
+    environment:
+      - USER=user@email.com
+      - PASS=password
+      - COUNTRY=Spain;Switzerland
+      - CATEGORY=P2P
+      - RANDOM_TOP=10
+      - RECREATE_VPN_CRON=5 */3 * * *
+      - NETWORK=192.168.1.0/24;192.168.2.0/24
+      - OPENVPN_OPTS=--mute-replay-warnings
+    ports:
+      - 8080:80
+    restart: unless-stopped
+  
+  web:
+    image: nginx
+    network_mode: service:vpn
+```
+
+### Filter NordVPN servers
+
+This container selects least loaded server from NordVPN pool. Server list can be filtered by setting `COUNTRY`, `CATEGORY` and/or `PROTOCOL` environment variables. If filtered list is empty, recommended server is selected.
+
+### Reconnect by cron
+
+This container selects server and its config during startup and maintains connection until stop. Selected server might be changed using cron via `RECREATE_VPN_CRON` environment variable.
+
+```bash
+docker run -ti --cap-add=NET_ADMIN --device /dev/net/tun --name vpn \
+           -e RECREATE_VPN_CRON="5 */3 * * *" -e RANDOM_TOP=10
+           -e USER=user@email.com -e PASS=password -d azinchen/nordvpn
+```
+
+In this example the VPN connection will be reconnected in the 5th minute every 3 hours.
+
+### Reconnect
+
+By the fault the container will try to reconnect to the same server when disconnected, in order to reconnect to another recommended server automatically add env variable:
+
+```bash
+ - OPENVPN_OPTS=--pull-filter ignore "ping-restart" --ping-exit 180
+```
+
+### Check Internet connection by cron
+
+This container checks Internet connection via VPN by cron.
+
+```bash
+docker run -ti --cap-add=NET_ADMIN --device /dev/net/tun --name vpn \
+           -e CHECK_CONNECTION_CRON="*/5 * * * *" -e CHECK_CONNECTION_URL="https://www.google.com"
+           -e USER=user@email.com -e PASS=password -d azinchen/nordvpn
+```
+
+In this example the VPN connection will be checked every 5 minutes.
+
+### Local Network access to services connecting to the internet through the VPN
+
+The environment variable NETWORK must be your local network that you would connect to the server running the docker containers on. Running the following on your docker host should give you the correct network: `ip route | awk '!/ (docker0|br-)/ && /src/ {print $1}'`
+
+```bash
+docker run -ti --cap-add=NET_ADMIN --device /dev/net/tun --name vpn \
+           -p 8080:80 -e NETWORK=192.168.1.0/24 \ 
+           -e USER=user@email.com -e PASS=password -d azinchen/nordvpn
+```
+
+Now just create the second container _without_ the `-p` parameter, only inlcude the `--net=container:vpn`, the port should be declare in the vpn container.
+
+```bash
+docker run -ti --rm --net=container:vpn -d bubuntux/riot-web
+```
+
+now the service provided by the second container would be available from the host machine (<http://localhost:8080>) or anywhere inside the local network (<http://192.168.1.xxx:8080>).
+
+### Local Network access to services connecting to the internet through the VPN using a Web proxy
+
+```bash
+docker run -it --name web -p 80:80 -p 443:443 \
+           --link vpn:<service_name> -d dperson/nginx \
+           -w "http://<service_name>:<PORT>/<URI>;/<PATH>"
+```
+
+Which will start a Nginx web server on local ports 80 and 443, and proxy any requests under `/<PATH>` to the to `http://<service_name>:<PORT>/<URI>`. To use a concrete example:
+
+```bash
+docker run -it --name bit --net=container:vpn -d bubundut/nordvpn
+docker run -it --name web -p 80:80 -p 443:443 --link vpn:bit \
+           -d dperson/nginx -w "http://bit:9091/transmission;/transmission"
+```
+
+For multiple services (non-existant 'foo' used as an example):
+
+```bash
+docker run -it --name bit --net=container:vpn -d dperson/transmission
+docker run -it --name foo --net=container:vpn -d dperson/foo
+docker run -it --name web -p 80:80 -p 443:443 --link vpn:bit \
+           --link vpn:foo -d dperson/nginx \
+           -w "http://bit:9091/transmission;/transmission" \
+           -w "http://foo:8000/foo;/foo"
 ```
 
 ## Environment variables
 
 Container images are configured using environment variables passed at runtime.
 
-- `BACKUP_CRON`             - Set schedule for `duplicacy backup` command in format for crontab file. The `duplicacy backup` command doesn't run if `BACKUP_CRON` is not set.
-- `PRUNE_CRON`              - Set schedule for `duplicacy prune` command in format for crontab file. The `duplicacy prune` command doesn't run if `PRUNE_CRON` is not set.
-- `BACKUP_END_CRON`         - Set schedule for force killing of duplicacy backup process in format for crontab file. The force killing of duplicacy backup process doesn't run if `BACKUP_END_CRON` is not set.
-- `PRIORITY_LEVEL`          - Run `duplicacy` with an adjusted niceness, which affects process scheduling. Niceness values range from -20 (most favorable to the process) to 19 (least favorable to the process). Default value is 10.
-- `GLOBAL_OPTIONS`          - Set global options for every `duplicacy` command, see ["Global options details"][duplicacy-global-options] for details. Global options are not set by default.
-- `BACKUP_OPTIONS`          - Set options for every `duplicacy backup` command, see `duplicacy backup` command [description][duplicacy-backup] for details. Backup options are not set by default.
-- `PRE_BACKUP_SCRIPT`       - Give path of a custom script to run just before a backup starts. You could use docker command in pre script by adding `-v /var/run/docker.sock:/var/run/docker.sock`.
-- `POST_BACKUP_SCRIPT`      - Give path of a custom script to run once backup completes. You could use docker command in post script by adding `-v /var/run/docker.sock:/var/run/docker.sock`.
-- `PRUNE_OPTIONS`           - Set options for every `duplicacy prune` command, see `duplicacy prune` command [description][duplicacy-prune] for details. Prune options are not set by default.
-- `POST_PRUNE_SCRIPT`       - Give path of a custom script to run once prune completes. You could use docker command in post script by adding `-v /var/run/docker.sock:/var/run/docker.sock`.
-- `RUN_JOB_IMMEDIATELY`     - Set to `yes` to run `duplicacy backup` and/or `duplicacy prune` command at container startup. Immeditely jobs don't start by default.
-- `SNAPSHOT_ID`             - Set snapshot id, see `duplicacy init` command [description][duplicacy-init] for details.
-- `STORAGE_URL`             - Set storage url, see `duplicacy init` command [description][duplicacy-init] for details. Duplicacy supports different storage providers, see ["Supported storage backends"][duplicacy-storage] for details. Login credentials for storage url should be set using environment variables, see ["Passwords, credentials and environment variables"][duplicacy-variables] for details.
-- `JOB_RANDOM_DELAY`        - Set maximum value of delay before job startup, in seconds. Jobs run without delay by default.
-- `PRUNE_KEEP_POLICIES`     - Set keep options for `duplicacy prune` command, see `duplicacy prune` command [description][duplicacy-prune] for details. Several keep options can be set using semicolon as delimeter.
-- `FILTER_PATTERNS`         - Set filter patterns, see ["Filters/Include exclude patterns"][duplicacy-filters] for details. Several filter patterns can be defined using semicolon as delimeter.
-- `DUPLICACY_PASSWORD`      - Enable encryption for storage and set password, see `duplicacy init` command [description][duplicacy-init] for details. Encryption is disabled by default.
-- `EMAIL_HOSTNAME_ALIAS`    - Set host alias in email reports. Hostname of container is used by default.
-- `EMAIL_FROM`              - Set sender email.
-- `EMAIL_FROM_NAME`         - Set sender name.
-- `EMAIL_TO`                - Set recipient email.
-- `EMAIL_USE_TLS`           - Enable encryption in session with SMTP server.
-- `EMAIL_SMTP_SERVER`       - Set SMTP server address.
-- `EMAIL_SMTP_SERVER_PORT`  - Set SMTP server port.
-- `EMAIL_SMTP_LOGIN`        - Set SMTP server login.
-- `EMAIL_SMTP_PASSWORD`     - Set SMTP server password.
-- `EMAIL_LOG_LINES_IN_BODY` - Set number of lines from the beginning and the end of log and put it to the body of email report. Default value is `10`.
+* `COUNTRY`           - Use servers from countries in the list (IE Australia;New Zeland). Several countries can be selected using semicolon.
+* `CATEGORY`          - Use servers from specific categories (IE P2P;Anti DDoS). Several categories can be selected using semicolon. Allowed categories are:
+  * `Dedicated IP`
+  * `Double VPN`
+  * `Obfuscated Servers`
+  * `Onion Over VPN`
+  * `P2P`
+  * `Standard VPN servers`
+* `PROTOCOL`          - Specify OpenVPN protocol. Only one protocol can be selected. Allowed protocols are:
+  * `openvpn_udp`
+  * `openvpn_tcp`
+* `RANDOM_TOP`        - Place n servers from filtered list in random order. Useful with `RECREATE_VPN_CRON`.
+* `RECREATE_VPN_CRON` - Set period of selecting new server in format for crontab file. Disabled by default.
+* `CHECK_CONNECTION_CRON` - Set period of checking Internet connection in format for crontab file. Disabled by default.
+* `CHECK_CONNECTION_URL` - Use list of URI for checking Internet connection.
+* `CHECK_CONNECTION_ATTEMPTS` - Set number of attemps of checking. Default value is 5.
+* `CHECK_CONNECTION_ATTEMPT_INTERVAL` - Set sleep timeouts between failed attepms. Default value is 10.
+* `USER`              - User for NordVPN account.
+* `PASS`              - Password for NordVPN account.
+* `NETWORK`           - CIDR network (IE 192.168.1.0/24), add a route to allows replies once the VPN is up. Several networks can be added to route using semicolon.
+* `NETWORK6`          - CIDR IPv6 network (IE fe00:d34d:b33f::/64), add a route to allows replies once the VPN is up. Several networks can be added to route using semicolon.
+* `OPENVPN_OPTS`      - Used to pass extra parameters to openvpn [full list](https://openvpn.net/community-resources/reference-manual-for-openvpn-2-4/).
 
-## Disclaimer
+## Environment variable's keywords
 
-This project uses [Duplicacy Command Line version][duplicacy-github], which is free for personal use but requires [purchasing a licence][duplicacy-purchase] for non-trial commercial use. See the detailed terms [here][duplicacy-license].
+The list of keywords for environment variables might be changed, check the allowed keywords by the following commands:
+
+`COUNTRY`
+
+```bash
+curl -s https://api.nordvpn.com/server | jq -c '.[] | .country' | jq -s -a -c 'unique | .[]'
+```
+
+`CATEGORY`
+
+```bash
+curl -s https://api.nordvpn.com/server | jq -c '.[] | .categories[].name' | jq -s -a -c 'unique | .[]'
+```
 
 ## Issues
 
 If you have any problems with or questions about this image, please contact me through a [GitHub issue][github-issues] or [email][email-link].
 
-[dockerhub-pulls]: https://img.shields.io/docker/pulls/azinchen/duplicacy
-[dockerhub-link]: https://hub.docker.com/repository/docker/azinchen/duplicacy
-[dockerhub-size]: https://img.shields.io/docker/image-size/azinchen/duplicacy/latest
-[github-lastcommit]: https://img.shields.io/github/last-commit/azinchen/duplicacy
-[github-link]: https://github.com/azinchen/duplicacy
-[github-issues]: https://github.com/azinchen/duplicacy/issues
-[github-build]: https://img.shields.io/github/workflow/status/azinchen/duplicacy/CI_CD_Task
-[duplicacy-home]: https://duplicacy.com
-[duplicacy-github]: https://github.com/gilbertchen/duplicacy
-[duplicacy-license]: https://github.com/gilbertchen/duplicacy/blob/master/LICENSE.md
-[duplicacy-purchase]: https://duplicacy.com/buy.html
-[duplicacy-forum]: https://forum.duplicacy.com
-[duplicacy-storage]: https://forum.duplicacy.com/t/supported-storage-backends/1107
-[duplicacy-global-options]: https://forum.duplicacy.com/t/global-options-details/1087
-[duplicacy-init]: https://forum.duplicacy.com/t/init-command-details/1090
-[duplicacy-backup]: https://forum.duplicacy.com/t/backup-command-details/1077
-[duplicacy-prune]: https://forum.duplicacy.com/t/prune-command-details/1005
-[duplicacy-filters]: https://forum.duplicacy.com/t/filters-include-exclude-patterns/1089
-[duplicacy-variables]: https://forum.duplicacy.com/t/passwords-credentials-and-environment-variables/1094
+[dockerhub-badge]: https://img.shields.io/docker/pulls/azinchen/nordvpn?style=flat-square
+[dockerhub-link]: https://hub.docker.com/repository/docker/azinchen/nordvpn
+[dockerhub-pulls]: https://img.shields.io/docker/pulls/azinchen/nordvpn
+[dockerhub-size]: https://img.shields.io/docker/image-size/azinchen/nordvpn/latest
+[github-lastcommit]: https://img.shields.io/github/last-commit/azinchen/nordvpn
+[github-link]: https://github.com/azinchen/nordvpn
+[github-issues]: https://github.com/azinchen/nordvpn/issues
+[github-build]: https://img.shields.io/github/workflow/status/azinchen/nordvpn/CI_CD_Task
 [email-link]: mailto:alexander@zinchenko.com

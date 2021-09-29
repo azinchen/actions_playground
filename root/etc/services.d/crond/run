@@ -1,4 +1,3 @@
-#!/usr/bin/with-contenv bash
-# shellcheck shell=bash disable=SC1008
+#!/usr/bin/with-contenv sh
 
 exec /usr/sbin/crond -f

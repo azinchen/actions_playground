@@ -5,7 +5,9 @@ ENV PACKAGE="just-containers/s6-overlay"
 ARG TARGETPLATFORM
 COPY /github_packages.json /tmp/github_packages.json
 
-RUN echo "**** install packages ****" && \
+RUN echo "**** upgrade packages ****" && \
+    apk --no-cache --no-progress add openssl=1.1.1l-r0 && \
+    echo "**** install mandatory packages ****" && \
     apk --no-cache --no-progress add tar=1.34-r0 \
         jq=1.6-r1 && \
     echo "**** create folders ****" && \
@@ -24,55 +26,59 @@ RUN echo "**** install packages ****" && \
     wget -q "https://github.com/${PACKAGE}/releases/download/v${VERSION}/s6-overlay-${PACKAGEPLATFORM}.tar.gz" -qO /tmp/s6-overlay.tar.gz && \
     tar xfz /tmp/s6-overlay.tar.gz -C /s6/
 
-# Duplicacy builder
-FROM alpine:3.14 AS duplicacy-builder
+# ovpn builder
+FROM alpine:3.14 AS ovpn-builder
 
-ENV PACKAGE="gilbertchen/duplicacy"
-ARG TARGETPLATFORM
-COPY /github_packages.json /tmp/github_packages.json
+COPY /ovpn.zip /tmp/ovpn.zip
 
-RUN echo "**** install packages ****" && \
-    apk --no-cache --no-progress add jq=1.6-r1 && \
-    echo "**** download ${PACKAGE} ****" && \
-    PACKAGEPLATFORM=$(case ${TARGETPLATFORM} in \
-        "linux/amd64")  echo "x64"    ;; \
-        "linux/386")    echo "i386"   ;; \
-        "linux/arm64")  echo "arm64"  ;; \
-        "linux/arm/v7") echo "arm"    ;; \
-        "linux/arm/v6") echo "arm"    ;; \
-        *)              echo ""       ;; esac) && \
-    VERSION=$(jq -r '.[] | select(.name == "'${PACKAGE}'").version' /tmp/github_packages.json) && \
-    echo "Package ${PACKAGE} platform ${PACKAGEPLATFORM} version ${VERSION}" && \
-    wget -q "https://github.com/${PACKAGE}/releases/download/v${VERSION}/duplicacy_linux_${PACKAGEPLATFORM}_${VERSION}" -qO /tmp/duplicacy
+RUN echo "**** upgrade packages ****" && \
+    apk --no-cache --no-progress add openssl=1.1.1l-r0 && \
+    echo "**** install mandatory packages ****" && \
+    apk --no-cache --no-progress add unzip=6.0-r9 && \
+    echo "**** create folders ****" && \
+    mkdir -p /ovpn && \
+    echo "**** download NordVPN OpenVPN config files ****" && \
+    unzip -q /tmp/ovpn.zip -d /tmp/ovpn && \
+    mv /tmp/ovpn/*/*.ovpn /ovpn
 
 # rootfs builder
 FROM alpine:3.14 AS rootfs-builder
 
+RUN echo "**** upgrade packages ****" && \
+    apk --no-cache --no-progress add openssl=1.1.1l-r0 && \
+    echo "**** create folders ****" && \
+    mkdir -p /ovpn
+
 COPY root/ /rootfs/
-COPY --from=duplicacy-builder /tmp/duplicacy /rootfs/usr/bin/duplicacy
 RUN chmod +x /rootfs/usr/bin/*
 COPY --from=s6-builder /s6/ /rootfs/
+COPY --from=ovpn-builder /ovpn/ /rootfs/ovpn/
 
 # Main image
 FROM alpine:3.14
 
 LABEL maintainer="Alexander Zinchenko <alexander@zinchenko.com>"
 
-ENV BACKUP_CRON="" \
-    SNAPSHOT_ID="" \
-    STORAGE_URL="" \
-    PRIORITY_LEVEL=10 \
-    EMAIL_LOG_LINES_IN_BODY=10
+ENV URL_NORDVPN_API="https://api.nordvpn.com/server" \
+    URL_RECOMMENDED_SERVERS="https://nordvpn.com/wp-admin/admin-ajax.php?action=servers_recommendations" \
+    PROTOCOL=openvpn_udp \
+    MAX_LOAD=70 \
+    RANDOM_TOP=0 \
+    CHECK_CONNECTION_ATTEMPTS=5 \
+    CHECK_CONNECTION_ATTEMPT_INTERVAL=10
 
-RUN echo "**** install packages ****" && \
+RUN echo "**** upgrade packages ****" && \
+    apk --no-cache --no-progress add openssl=1.1.1l-r0 && \
+    echo "**** install mandatory packages ****" && \
     apk --no-cache --no-progress add bash=5.1.4-r0 \
-        zip=3.0-r9 \
-        ssmtp=2.64-r14 \
-        ca-certificates=20191127-r5 \
-        docker=20.10.7-r1 && \
+        curl=7.79.1-r0 \
+        iptables=1.8.7-r1 \
+        ip6tables=1.8.7-r1 \
+        jq=1.6-r1 \
+        openvpn=2.5.2-r0 && \
     echo "**** create folders ****" && \
-    mkdir -p /config && \
-    mkdir -p /data && \
+    mkdir -p /vpn && \
+    mkdir -p /ovpn && \
     echo "**** cleanup ****" && \
     rm -rf /tmp/* && \
     rm -rf /var/cache/apk/*
@@ -80,7 +86,6 @@ RUN echo "**** install packages ****" && \
 COPY --from=rootfs-builder /rootfs/ /
 
 VOLUME ["/config"]
-VOLUME ["/data"]
 
 WORKDIR  /config
 
