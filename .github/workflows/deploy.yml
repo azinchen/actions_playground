@@ -1,8 +1,7 @@
 name: Build and Deploy image
 
 on:
-  schedule:
-    - cron: 0 3 * * *
+  push:
 
 env:
   PLATFORMS: "linux/amd64,linux/386,linux/arm64,linux/arm/v7,linux/arm/v6,linux/ppc64le"
@@ -28,11 +27,7 @@ jobs:
           BRANCH=$(echo ${GITHUB_REF} | sed -e "s/.*\///g")
           echo "::set-output name=branch::${BRANCH}"
 
-          if [[ ${TAG} == 'true' ]]; then
-            IMAGE_TAG=${BRANCH:1}
-          else
-            IMAGE_TAG=${BRANCH}
-          fi
+          IMAGE_TAG=${BRANCH}
           echo "::set-output name=image_tag::${IMAGE_TAG}"
 
           echo "Action branch=${BRANCH} tag=${TAG} ref=${GITHUB_REF} image_tag=${IMAGE_TAG}"
